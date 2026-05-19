@@ -28,7 +28,14 @@ _G5_SCORING_DOCX = _BASE / "CTG-KNC-TD-QT01.BM16 - BỘ CÂU HỎI ĐÁNH GIÁ T
 
 # ── OpenAI client — lazy init từ Frappe Single DocType hoặc env var ───────────
 def _get_openai_key() -> str:
-    # Ưu tiên 1: AI ATS Settings Single DocType
+    # Ưu tiên 1: Agent DocType (cùng pattern với các app khác)
+    try:
+        agent = frappe.get_doc("Agent", "2AS-ATS")
+        key = agent.get_password("api_key") if agent.get("api_key") else None
+        if key: return key
+    except Exception:
+        pass
+    # Ưu tiên 2: AI ATS Settings Single DocType (nếu có)
     try:
         key = frappe.db.get_single_value("AI ATS Settings", "openai_api_key")
         if key: return key
