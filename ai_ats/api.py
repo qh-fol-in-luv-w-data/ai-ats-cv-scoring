@@ -355,7 +355,34 @@ Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
 
 QUYẾT ĐỊNH: {data.get('decision', '')}
 """
-        final_resp = {"report_text": report_text, **data}
+        final_resp = {
+            # Trường chính — bên thứ 3 chỉ cần report_text
+            "report_text": report_text,
+            "decision":    data.get("decision", ""),
+            "candidate_name": data.get("candidate_name", ""),
+            "position":    data.get("position", ""),
+            "email":       data.get("email", ""),
+            "phone":       data.get("phone", ""),
+            # Điểm số tổng hợp
+            "ai_test_total": data.get("ai_test_total", 0),
+            "ai_test_label": data.get("ai_test_label", ""),
+            "swat_total":    data.get("swat_total", 0),
+            "swat_label":    data.get("swat_label", ""),
+            "g5_total":      data.get("g5_total", 0),
+            # Chi tiết bảng — dùng cho UI
+            "ai_test_table": data.get("ai_test_table", []),
+            "swat_table":    data.get("swat_table", []),
+            # Phân tích định tính
+            "strength_tech_skills": data.get("strength_tech_skills", ""),
+            "strength_exceeding":   data.get("strength_exceeding", ""),
+            "gap_missing_skills":   data.get("gap_missing_skills", ""),
+            "gap_risks":            data.get("gap_risks", ""),
+            "best_at_core":         data.get("best_at_core", ""),
+            "best_at_2as_ops":      data.get("best_at_2as_ops", ""),
+            "best_at_2as_ready":    data.get("best_at_2as_ready", ""),
+            "best_at_global":       data.get("best_at_global", ""),
+            "doctype_name":         data.get("doctype_name", ""),
+        }
 
         # ── Action Log: finish ────────────────────────────────────────────────
         _logger.finish_action(
