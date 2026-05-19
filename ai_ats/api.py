@@ -34,13 +34,7 @@ def _get_openai_key() -> str:
         if key: return key
     except Exception:
         pass
-    # Ưu tiên 2: CT Agent Hub — Agent DocType (agent_id = "2AS-ATS")
-    try:
-        key = frappe.db.get_value("CT Agent", {"agent_id": "2AS-ATS"}, "api_key")
-        if key: return key
-    except Exception:
-        pass
-    # Fallback: biến môi trường
+    # Fallback: biến môi trường OPENAI_API_KEY
     return os.getenv("OPENAI_API_KEY", "")
 
 _gpt = None
