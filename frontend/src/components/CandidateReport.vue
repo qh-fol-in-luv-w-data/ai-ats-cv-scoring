@@ -48,8 +48,8 @@
           <input v-model="f.eq_test_url" type="url" placeholder="https://..." />
         </div>
         <div class="field">
-          <label>Interview Survey URL <span class="opt">(Optional)</span></label>
-          <input v-model="f.survey_url" type="url" placeholder="Leave blank if none" />
+          <label>Interview Survey URL <span class="req">*</span></label>
+          <input v-model="f.survey_url" type="url" placeholder="http://10.6.10.12:8069/survey/..." required />
         </div>
       </div>
 
@@ -223,7 +223,8 @@ function dropFile(e) { drag.value=false; cvFile.value=e.dataTransfer.files[0]||n
 
 async function run() {
   err.value=''; r.value=null
-  // Không bắt buộc link nữa, nếu để trống thì gửi rỗng
+  if (!cvFile.value) return err.value = '⚠️ Vui lòng tải CV lên trước.'
+  if (!f.value.survey_url) return err.value = '⚠️ Interview Survey URL là bắt buộc.'
   loading.value=true
   try {
     const fd = new FormData()
@@ -274,6 +275,7 @@ async function run() {
 .field.full { grid-column: 1 / -1; }
 label { font-size: 0.85rem; font-weight: 600; color: var(--text-2); }
 .opt { font-weight: 400; opacity: 0.6; font-size: 0.75rem; }
+.req { color: #ef4444; font-weight: 700; margin-left: 2px; }
 
 input, textarea {
   background: rgba(15,23,42,0.4);

@@ -216,6 +216,10 @@ def generate_candidate_report(
         else:
             api_use_cache = bool(api_use_cache)
 
+        # Validate bắt buộc
+        if not survey_url:
+            frappe.throw("survey_url là bắt buộc. Vui lòng cung cấp link phỏng vấn.", frappe.ValidationError)
+
         # CV từ upload
         if frappe.request and frappe.request.files:
             f = frappe.request.files.get("cv_file")
