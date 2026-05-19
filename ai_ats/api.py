@@ -61,13 +61,16 @@ def _read(path: Path) -> str:
     return _pdf_bytes(b) if path.suffix == ".pdf" else _docx_bytes(b)
 
 def _read_cached(path: Path, use_cache: bool = True) -> str:
+    """Reads from file and caches into RAM using frappe.cache()"""
     if not path.exists(): return ""
     cache_key = f"ai_ats_doc_{path.name}"
     if use_cache:
-        cached = frappe.cache().get_value(cache_key)
-        if cached:
-            return cached
+        cached_content = frappe.cache().get_value(cache_key)
+        if cached_content:
+            return cached_content
+    # Not in cache or cache bypassed, read from disk
     content = _read(path)
+    # Cache for 24 hours (86400 seconds)
     frappe.cache().set_value(cache_key, content, expires_in_sec=86400)
     return content
 
@@ -92,13 +95,23 @@ Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
 - Chấm điểm SWAT Elite (Thang 10) -> swat_total.
 - Kết quả SWAT Elite (swat_label): Đánh giá [Swat-Elite] (nếu swat_total >= 6.0) hoặc [KHÔNG ĐẠT] (nếu swat_total < 6.0).
 - Chấm điểm 5G Test (Thang 10) -> g5_total.
-- LƯU Ý CHỐNG BỊA ĐẶT: Điểm AI Test PHẢI dựa trên nội dung TEST AI. Điểm SWAT và 5G PHẢI dựa trên nội dung TEST 5G. Nếu nội dung test bị lỗi, rỗng hoặc thiếu thông tin, TUYỆT ĐỐI KHÔNG tự bịa điểm (phải cho 0 điểm).
-- QUY TẮC RA QUYẾT ĐỊNH: Nếu ai_test_label là "Non-AI" HOẶC g5_total < 6.0 HOẶC swat_total < 6.0, thì BẮT BUỘC decision = "KHÔNG ĐẠT". Chỉ được đánh giá "ĐẠT" khi tất cả đều qua môn.
+- LƯU Ý CHỐNG BỊA ĐẶT (Hallucination): Điểm AI Test PHẢI được chấm hoàn toàn dựa trên nội dung TEST AI. Điểm SWAT và 5G PHẢI dựa hoàn toàn trên nội dung TEST 5G. Nếu nội dung test bị lỗi, rỗng hoặc thiếu thông tin, TUYỆT ĐỐI KHÔNG tự bịa điểm (phải cho 0 điểm).
+- LỌC NHIỄU TÀI LIỆU HƯỚNG DẪN: Trong các tài liệu Hướng dẫn chấm điểm (Rubric) có thể có nhiều thông tin dư thừa. Bạn PHẢI BỎ QUA các phần râu ria và CHỈ TẬP TRUNG vào đúng "khung tiêu chuẩn chấm điểm" (barem/rubric) cốt lõi để đối chiếu với bài làm của ứng viên.
+- QUY TẮC TÀN KHỐC ĐỂ RA QUYẾT ĐỊNH (decision): Vì công ty áp dụng "No AI - No Hire", nếu ai_test_label là "Non-AI" HOẶC g5_total < 6.0 HOẶC swat_total < 6.0, thì BẮT BUỘC Quyết định (decision) = "KHÔNG ĐẠT" (Cúc luôn!). Chỉ được đánh giá "ĐẠT" khi tất cả đều qua môn.
 
 Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
-1. strengths: strength_tech_skills, strength_exceeding
-2. gaps: gap_missing_skills, gap_risks
-3. best_at: best_at_core, best_at_2as_ops, best_at_2as_ready, best_at_global
+Phân tích theo đúng cấu trúc sau (PHẢI PHÂN TÍCH KỸ, ĐỐI CHIẾU CHÉO GIỮA CV, JD, BÀI TEST VÀ PHỎNG VẤN/SURVEY):
+1. strengths (ĐIỂM MẠNH):
+  - Kỹ năng công nghệ và năng lực chuyên môn nổi trội (Nhớ bám sát yêu cầu JD và kết hợp thông tin từ Survey) -> strength_tech_skills.
+  - Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại -> strength_exceeding.
+2. gaps (ĐIỂM HẠN CHẾ):
+  - Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First (Đối chiếu kỹ với những gì JD đòi hỏi và Survey) -> gap_missing_skills.
+  - Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test -> gap_risks.
+3. best_at (NĂNG LỰC NỔI BẬT NHẤT):
+  - Chuyên môn mạnh nhất: Lĩnh vực lõi tạo giá trị ngay (Tổng hợp từ CV, JD và Survey) -> best_at_core.
+  - Năng lực vận hành 2AS: Mức độ khai thác Agentic AI Staff (Harvey, Patlytics...) -> best_at_2as_ops.
+  - Mức độ sẵn sàng sử dụng 2AS: Sự thích ứng, không e ngại giao việc cho AI -> best_at_2as_ready.
+  - Ngoại ngữ & Thực chiến: Khả năng triển khai dự án thực tế trong môi trường quốc tế -> best_at_global.
 
 CHỈ trả JSON theo schema:
 {
@@ -300,14 +313,31 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 
         report_text = f"""BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)
 
-Phần I: Tổng quan Hồ sơ & Điểm số
-- AI Readiness Index: {data.get('ai_test_total', 0)}/100 [{data.get('ai_test_label', '')}]
-- Điểm SWAT Elite: {data.get('swat_total', 0)}/10 [{data.get('swat_label', '')}]
+Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
+- AI Readiness Index (Chỉ số sẵn sàng AI): {data.get('ai_test_total', 0)}/100
+- Phân loại Ứng viên: [{data.get('ai_test_label', '')}]
+- Điểm SWAT Elite: {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
 
-Phần II: Phân tích Năng lực Chuyên sâu
-1. ĐIỂM MẠNH: {data.get('strength_tech_skills', '')}
-2. HẠN CHẾ: {data.get('gap_missing_skills', '')}
-3. BEST AT: {data.get('best_at_core', '')}
+Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
+
+1. ĐIỂM MẠNH (Strengths):
+- Kỹ năng công nghệ và năng lực chuyên môn nổi trội:
+  {data.get('strength_tech_skills', '')}
+- Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:
+  {data.get('strength_exceeding', '')}
+
+2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):
+- Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:
+  {data.get('gap_missing_skills', '')}
+- Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:
+  {data.get('gap_risks', '')}
+
+3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):
+- Chuyên môn mạnh nhất: {data.get('best_at_core', '')}
+- Năng lực vận hành 2AS: {data.get('best_at_2as_ops', '')}
+- Mức độ sẵn sàng sử dụng 2AS: {data.get('best_at_2as_ready', '')}
+- Ngoại ngữ & Thực chiến: {data.get('best_at_global', '')}
+
 QUYẾT ĐỊNH: {data.get('decision', '')}
 """
         final_resp = {"report_text": report_text, **data}
