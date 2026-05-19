@@ -17,8 +17,8 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["flit_core >=3.4,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.bench.dev-dependencies]
 # package_name = "~=1.1.0"
