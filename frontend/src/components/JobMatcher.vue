@@ -82,6 +82,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { getCsrfToken, getSessionId } from '../utils/session'
 
 const drag = ref(false)
 const cvFile = ref(null)
@@ -123,15 +124,19 @@ async function run() {
     const formattedJobs = jobs.value.map((j, i) => ({ ...j, id: i + 1 }))
     fd.append('jobs_json', JSON.stringify(formattedJobs))
 
-    const res = await fetch('/api/method/ai_ats.job_matcher.match_candidate_jobs', { 
-      method: 'POST', 
-      headers: { 'Authorization': 'token aae39b3ed483be2:78623a82878aba3' },
-      body: fd 
+    const res = await fetch('/api/method/ai_ats.job_matcher.match_candidate_jobs', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'X-Frappe-CSRF-Token': getCsrfToken(),
+        'X-App-Session-Id': getSessionId(),
+      },
+      body: fd,
     })
-    
+
     const js = await res.json()
-    if (!res.ok || js.exc) throw new Error(js.exc || 'Server Error')
-    
+    if (!res.ok || js.exc) throw new Error(js._server_messages ? JSON.parse(JSON.parse(js._server_messages)[0]).message : (js.exc || 'Server Error'))
+
     result.value = js.message
     setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 300)
   } catch(e) { 

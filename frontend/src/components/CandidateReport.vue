@@ -200,6 +200,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { getCsrfToken, getSessionId } from '../utils/session'
 
 const f = ref({ ai_test_url:'', g5_test_url:'', eq_test_url:'', survey_url:'', jd_text:'' })
 const cvFile = ref(null)
@@ -232,13 +233,21 @@ async function run() {
     // Disable cache khi test
     fd.append('api_use_cache', '0')
 
-    const res = await fetch('/api/method/ai_ats.api.generate_candidate_report',{ method:'POST', body:fd })
+    const res = await fetch('/api/method/ai_ats.api.generate_candidate_report', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'X-Frappe-CSRF-Token': getCsrfToken(),
+        'X-App-Session-Id': getSessionId(),
+      },
+      body: fd,
+    })
     const js = await res.json()
-    if (!res.ok||js.exc) throw new Error(js.exc||'Server Error')
+    if (!res.ok || js.exc) throw new Error(js._server_messages ? JSON.parse(JSON.parse(js._server_messages)[0]).message : (js.exc || 'Server Error'))
     r.value = js.message
     setTimeout(() => window.scrollTo({ top: 500, behavior: 'smooth' }), 200)
-  } catch(e) { err.value=`❌ ${e.message}` }
-  finally { loading.value=false }
+  } catch(e) { err.value = `❌ ${e.message}` }
+  finally { loading.value = false }
 }
 </script>
 
