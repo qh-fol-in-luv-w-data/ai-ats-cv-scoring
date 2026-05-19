@@ -1,0 +1,6 @@
+openai
+python-docx
+pypdf
+beautifulsoup4
+requests
+python-dotenv

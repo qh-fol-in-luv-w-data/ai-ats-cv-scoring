@@ -1,0 +1,69 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:MATCH-{YYYY}-{MM}-{####}",
+ "creation": "2026-05-19 21:24:03.574607",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "candidate_name",
+  "best_match_job",
+  "best_match_score",
+  "match_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "candidate_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "T\u00ean \u1ee8ng Vi\u00ean"
+  },
+  {
+   "fieldname": "best_match_job",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job Ph\u00f9 H\u1ee3p Nh\u1ea5t"
+  },
+  {
+   "fieldname": "best_match_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "\u0110i\u1ec3m Cao Nh\u1ea5t"
+  },
+  {
+   "fieldname": "match_details",
+   "fieldtype": "Code",
+   "label": "Chi Ti\u1ebft (JSON)",
+   "options": "JSON"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-19 21:24:03.574607",
+ "modified_by": "Administrator",
+ "module": "AI ATS",
+ "name": "AI Job Match Result",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

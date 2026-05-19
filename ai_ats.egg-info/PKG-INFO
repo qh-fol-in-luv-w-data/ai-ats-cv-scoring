@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: ai_ats
+Version: 0.0.1
+Summary: AI Candidate Persona Report System
+Author: CT Group
+Author-email: dev@ctgroup.vn
+Requires-Dist: frappe
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist
+Dynamic: summary
