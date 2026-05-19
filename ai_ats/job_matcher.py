@@ -143,5 +143,5 @@ CHỈ được phép trả về kết quả dưới định dạng JSON theo đ�
         try: frappe.db.rollback()
         except: pass
         _logger.finish_action(action_name, status="failed", error_message=str(e)[:500])
-        frappe.log_error(f"match_candidate_jobs error: {e}")
+        frappe.log_error(f"match_candidate_jobs error: {str(e)[:80]}")
         frappe.throw(str(e))

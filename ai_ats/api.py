@@ -28,10 +28,20 @@ _G5_SCORING_DOCX = _BASE / "CTG-KNC-TD-QT01.BM16 - BỘ CÂU HỎI ĐÁNH GIÁ T
 
 # ── OpenAI client — lazy init từ Frappe Single DocType hoặc env var ───────────
 def _get_openai_key() -> str:
+    # Ưu tiên 1: AI ATS Settings Single DocType
     try:
-        return frappe.db.get_single_value("AI ATS Settings", "openai_api_key") or os.getenv("OPENAI_API_KEY", "")
+        key = frappe.db.get_single_value("AI ATS Settings", "openai_api_key")
+        if key: return key
     except Exception:
-        return os.getenv("OPENAI_API_KEY", "")
+        pass
+    # Ưu tiên 2: CT Agent Hub — Agent DocType (agent_id = "2AS-ATS")
+    try:
+        key = frappe.db.get_value("CT Agent", {"agent_id": "2AS-ATS"}, "api_key")
+        if key: return key
+    except Exception:
+        pass
+    # Fallback: biến môi trường
+    return os.getenv("OPENAI_API_KEY", "")
 
 _gpt = None
 def _get_gpt():
@@ -364,7 +374,7 @@ QUYẾT ĐỊNH: {data.get('decision', '')}
         try: frappe.db.rollback()
         except: pass
         _logger.finish_action(action_name, status="failed", error_message=str(e)[:500])
-        frappe.log_error(f"generate_candidate_report error: {e}")
+        frappe.log_error(f"generate_candidate_report error: {str(e)[:80]}")
         frappe.throw(str(e))
 
 
