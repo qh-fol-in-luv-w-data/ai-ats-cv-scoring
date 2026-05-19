@@ -32,11 +32,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import CandidateReport from './components/CandidateReport.vue'
 import JobMatcher from './components/JobMatcher.vue'
+import { initSession, useSession } from './utils/session'
 
-const currentTab = ref('match')
+const { authState, currentUser, currentFullName } = useSession()
+const currentTab = ref('report')
+
+onMounted(async () => {
+  await initSession('/api/method/ai_ats.api.get_context')
+})
 </script>
 
 <style scoped>

@@ -1,8 +1,8 @@
 """
 AI ATS – API Endpoints
-/api/method/ai_ats.ai_ats.api.generate_candidate_report
+/api/method/ai_ats.api.generate_candidate_report
 """
-import io, json, warnings, hashlib
+import io, json, warnings, hashlib, uuid
 import frappe, requests
 import pypdf
 from bs4 import BeautifulSoup
@@ -10,15 +10,15 @@ from docx import Document as DocxDocument
 from openai import OpenAI
 from pathlib import Path
 from datetime import datetime
+from ai_ats.utils.activity_logger import ActivityLogger, Timer
 
 warnings.filterwarnings("ignore")
 
+# ── Activity Logger ───────────────────────────────────────────────────────────
+_logger = ActivityLogger(prefix="ATS", module="AI ATS")
+
 # ── Internal scoring guides (cố định, không đổi) ─────────────────────────────
 import os
-from dotenv import load_dotenv
-# Load .env từ Frappe app dir (ai_ats/ai_ats/.env) hoặc project root
-load_dotenv(Path(__file__).parent / ".env", override=True)
-load_dotenv(Path(__file__).parent.parent / ".env", override=False)
 
 # Thư mục chứa tài liệu nội bộ — set qua env var AI_ATS_DIR
 _BASE = Path(os.getenv("AI_ATS_DIR", str(Path(__file__).parent.parent.parent.parent / "AI_ATS")))
@@ -26,8 +26,19 @@ _AI_SCORING_PDF  = _BASE / "CTG-KNC-TD-QĐ04.BM02-HƯỚNG DẪN CHẤM ĐIỂM 
 _SWAT_PRD_DOCX   = _BASE / "18052026_RD - PRD - AI Candidate Persona Report.docx"
 _G5_SCORING_DOCX = _BASE / "CTG-KNC-TD-QT01.BM16 - BỘ CÂU HỎI ĐÁNH GIÁ TIỀM NĂNG ỨNG VIÊN 4.docx"
 
-# ── OpenAI client ─────────────────────────────────────────────────────────────
-_gpt = OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
+# ── OpenAI client — đọc từ Frappe Single DocType hoặc env var ─────────────────
+def _get_openai_key() -> str:
+    try:
+        return frappe.db.get_single_value("AI ATS Settings", "openai_api_key") or os.getenv("OPENAI_API_KEY", "")
+    except Exception:
+        return os.getenv("OPENAI_API_KEY", "")
+
+_gpt = None
+def _get_gpt():
+    global _gpt
+    if _gpt is None:
+        _gpt = OpenAI(api_key=_get_openai_key())
+    return _gpt
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -201,7 +212,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         if cached_resp:
             return cached_resp
 
-    resp = _gpt.chat.completions.create(
+    resp = _get_gpt().chat.completions.create(
         model="gpt-4o",
         messages=[{"role":"system","content":_SYSTEM},{"role":"user","content":user_msg}],
         response_format={"type":"json_object"},
@@ -280,3 +291,55 @@ QUYẾT ĐỊNH: {data.get('decision', '')}
         frappe.cache().set_value(cache_key, final_resp, expires_in_sec=86400 * 7) # Cache for 7 days
 
     return final_resp
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CT Group Template — Session & Access Control
+# ══════════════════════════════════════════════════════════════════════════════
+
+@frappe.whitelist(allow_guest=False)
+def get_context():
+    """
+    Entry point cho Frontend (initSession).
+    - Xac thuc quyen qua ct_agent_hub.check_app_access (cookie-based)
+    - Tao ATS Session moi
+    - Tra ve csrf_token + session_id + user info
+    """
+    dept = ""
+    role = ""
+    try:
+        from ct_agent_hub.api import check_app_access
+        agents_data = check_app_access("ai_ats")
+        user_depts = agents_data.get("user_departments", [])
+        dept = ",".join(user_depts) if user_depts else ""
+        role = agents_data.get("user_role", "")
+    except ImportError:
+        pass  # ct_agent_hub chua duoc cai dat
+
+    session_id   = str(uuid.uuid4())
+    session_name = _logger.create_session(session_id, dept=dept, role=role)
+
+    return {
+        "csrf_token":   frappe.sessions.get_csrf_token(),
+        "session_id":   session_id,
+        "session_name": session_name,
+        "user":         frappe.session.user,
+        "full_name":    frappe.utils.get_fullname(frappe.session.user),
+    }
+
+
+def _resolve_session(session_id: str) -> str:
+    """Tim session_name tu session_id. Fallback tra ve chuoi rong."""
+    if not session_id:
+        return ""
+    try:
+        rows = frappe.db.get_all(
+            "ATS Session",
+            filters={"session_id": session_id},
+            fields=["name"],
+            limit=1,
+            ignore_permissions=True,
+        )
+        return rows[0].name if rows else ""
+    except Exception:
+        return ""
