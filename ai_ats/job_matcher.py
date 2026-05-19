@@ -1,6 +1,6 @@
 import frappe
 import json
-from ai_ats.api import _gpt, _pdf_bytes, _docx_bytes
+from ai_ats.api import _get_gpt, _pdf_bytes, _docx_bytes
 
 @frappe.whitelist()
 def match_candidate_jobs(jobs_json: str = None, cv_text: str = "", **kwargs):
@@ -63,7 +63,7 @@ CHỈ được phép trả về kết quả dưới định dạng JSON theo đ�
 
     user_msg = f"### CV ỨNG VIÊN:\n{cv_text[:10000]}\n\n### DANH SÁCH CÁC CÔNG VIỆC CẦN MATCH:\n{jobs_context}"
 
-    resp = _gpt.chat.completions.create(
+    resp = _get_gpt().chat.completions.create(
         model="gpt-4o",
         messages=[{"role":"system","content":system_prompt},{"role":"user","content":user_msg}],
         response_format={"type":"json_object"},
