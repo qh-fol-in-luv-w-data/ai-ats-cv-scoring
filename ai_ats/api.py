@@ -551,6 +551,15 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
             duration_seconds=t.elapsed, status="success",
         )
 
+        # Chuẩn hoá swat_label
+        raw_swat = str(data.get("swat_label", "")).strip().upper()
+        if "KHÔNG ĐẠT" in raw_swat or "KHONG DAT" in raw_swat or "FAIL" in raw_swat:
+            clean_swat = "KHÔNG ĐẠT"
+        elif "ĐẠT" in raw_swat or "DAT" in raw_swat or "PASS" in raw_swat:
+            clean_swat = "ĐẠT"
+        else:
+            clean_swat = ""
+
         # Lưu DocType
         doc = frappe.get_doc({
             "doctype":              "AI Candidate Report",
@@ -567,7 +576,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
             "ai_test_total":        data.get("ai_test_total", 0),
             "ai_test_label":        data.get("ai_test_label", ""),
             "swat_total":           data.get("swat_total", 0),
-            "swat_label":           data.get("swat_label", ""),
+            "swat_label":           clean_swat,
             "strength_tech_skills": data.get("strength_tech_skills", ""),
             "strength_exceeding":   data.get("strength_exceeding", ""),
             "gap_missing_skills":   data.get("gap_missing_skills", ""),
