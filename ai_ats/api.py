@@ -439,3 +439,199 @@ def get_context():
         "user":         frappe.session.user,
         "full_name":    frappe.utils.get_fullname(frappe.session.user),
     }
+
+ 
+# endpoint for anh zũ
+@frappe.whitelist()
+def generate_candidate_only_report(
+    ai_test_url: str = "",
+    g5_test_url: str = "",
+    eq_test_url: str = "",
+    survey_url: str = "",
+    jd_text: str = "",
+    cv_text: str = "",
+    api_use_cache=1,
+):
+    """
+    INPUT  (qua form-data hoặc JSON payload):
+        ai_test_url, g5_test_url, eq_test_url  – link bài test
+        survey_url                              – link phỏng vấn
+        jd_text                                 – nội dung JD
+        cv_text                                 – nội dung CV text
+        cv_file                                 – file CV upload (pdf/docx)
+        api_use_cache                           - dùng cache (mặc định 1)
+    OUTPUT : dict + lưu vào DocType "AI Candidate Report"
+    Logging: ATS Session + ATS Action Log + ATS AI Call Log
+    """
+    # ── Session (auto-create nếu không có header) ─────────────────────────────
+    session_id   = (frappe.get_request_header("X-App-Session-Id") or "")
+    session_name = _ensure_session(session_id)
+
+    # ── Action Log: start ─────────────────────────────────────────────────────
+    action_name = _logger.start_action(
+        session_name,
+        action_type="generate_candidate_report",
+        input_summary=f"cv={'file' if frappe.request and frappe.request.files else 'text'}, ai_test={ai_test_url[:60]}",
+        input_detail={"ai_test_url": ai_test_url, "g5_test_url": g5_test_url, "has_jd": bool(jd_text)},
+    )
+
+    try:
+        # Convert cache flag
+        if isinstance(api_use_cache, str):
+            api_use_cache = api_use_cache.lower() in ['true', '1', 't', 'yes']
+        else:
+            api_use_cache = bool(api_use_cache)
+
+        # Validate bắt buộc
+        if not survey_url:
+            frappe.throw("survey_url là bắt buộc. Vui lòng cung cấp link phỏng vấn.", frappe.ValidationError)
+
+        # CV từ upload
+        if frappe.request and frappe.request.files:
+            f = frappe.request.files.get("cv_file")
+            if f:
+                raw = f.stream.read()
+                cv_text = _pdf_bytes(raw) if (f.filename or "").lower().endswith(".pdf") else _docx_bytes(raw)
+
+        # Scrape links
+        ai_txt = _scrape(ai_test_url)
+        g5_txt = _scrape(g5_test_url)
+        eq_txt = _scrape(eq_test_url)
+        sv_txt = _scrape(survey_url) if survey_url else "[Chưa có]"
+
+        # Scoring guides
+        ai_guide = _read_cached(_AI_SCORING_PDF, api_use_cache)
+        swat_prd = _read_cached(_SWAT_PRD_DOCX, api_use_cache)
+        g5_guide = _read_cached(_G5_SCORING_DOCX, api_use_cache)
+
+        user_msg = f"""
+### CV: {cv_text[:8000]}
+### JD: {jd_text[:5000]}
+### AI SCORING GUIDE: {ai_guide[:15000]}
+### SWAT PRD: {swat_prd[:15000]}
+### G5 GUIDE: {g5_guide[:20000]}
+### TEST AI (link): {ai_txt[:10000]}
+### TEST 5G (link): {g5_txt[:10000]}
+### EQ/IQ (link): {eq_txt[:5000]}
+### PHỎNG VẤN: {sv_txt[:5000]}
+Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
+Trả về JSON hợp lệ, điền đủ mọi trường."""
+
+        # Cache check
+        cache_key = ""
+        if api_use_cache:
+            raw_key = f"v4_{cv_text}{jd_text}{ai_test_url}{g5_test_url}{eq_test_url}{survey_url}"
+            req_hash = hashlib.md5(raw_key.encode('utf-8')).hexdigest()
+            cache_key = f"ai_ats_api_resp_{req_hash}"
+            cached_resp = frappe.cache().get_value(cache_key)
+            if cached_resp:
+                _logger.finish_action(action_name, status="success",
+                    output_summary="served_from_cache", from_cache=True)
+                return cached_resp
+
+        # GPT Call
+        with Timer() as t:
+            resp = _get_gpt().chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
+                response_format={"type": "json_object"},
+                temperature=0.2,
+                max_tokens=4000,
+            )
+        data = json.loads(resp.choices[0].message.content)
+        usage = resp.usage
+        prompt_tokens     = usage.prompt_tokens if usage else 0
+        completion_tokens = usage.completion_tokens if usage else 0
+
+        # ── AI Call Log ───────────────────────────────────────────────────────
+        _logger.log_ai_call(
+            session_name, action_name,
+            call_type="generate_candidate_report", ai_model="gpt-4o",
+            prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
+            duration_seconds=t.elapsed, status="success",
+        )
+
+        # Lưu DocType
+        doc = frappe.get_doc({
+            "doctype":              "AI Candidate Report",
+            "candidate_name":       data.get("candidate_name") or "Unknown",
+            "position":             data.get("position") or "",
+            "email":                data.get("email") or "",
+            "phone":                data.get("phone") or "",
+            "analysis_date":        datetime.now(),
+            "ai_test_url":          ai_test_url,
+            "g5_test_url":          g5_test_url,
+            "eq_test_url":          eq_test_url,
+            "survey_url":           survey_url,
+            "jd_text":              jd_text[:2000],
+            "ai_test_total":        data.get("ai_test_total", 0),
+            "ai_test_label":        data.get("ai_test_label", ""),
+            "swat_total":           data.get("swat_total", 0),
+            "swat_label":           data.get("swat_label", ""),
+            "strength_tech_skills": data.get("strength_tech_skills", ""),
+            "strength_exceeding":   data.get("strength_exceeding", ""),
+            "gap_missing_skills":   data.get("gap_missing_skills", ""),
+            "gap_risks":            data.get("gap_risks", ""),
+            "best_at_core":         data.get("best_at_core", ""),
+            "best_at_2as_ops":      data.get("best_at_2as_ops", ""),
+            "best_at_2as_ready":    data.get("best_at_2as_ready", ""),
+            "best_at_global":       data.get("best_at_global", ""),
+            "decision":             data.get("decision", ""),
+        })
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        report_text = f"""BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)
+
+Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
+- AI Readiness Index (Chỉ số sẵn sàng AI): {data.get('ai_test_total', 0)}/100
+- Phân loại Ứng viên: [{data.get('ai_test_label', '')}]
+- Điểm SWAT Elite: {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
+
+Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
+
+1. ĐIỂM MẠNH (Strengths):
+- Kỹ năng công nghệ và năng lực chuyên môn nổi trội:
+  {data.get('strength_tech_skills', '')}
+- Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:
+  {data.get('strength_exceeding', '')}
+
+2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):
+- Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:
+  {data.get('gap_missing_skills', '')}
+- Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:
+  {data.get('gap_risks', '')}
+
+3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):
+- Chuyên môn mạnh nhất: {data.get('best_at_core', '')}
+- Năng lực vận hành 2AS: {data.get('best_at_2as_ops', '')}
+- Mức độ sẵn sàng sử dụng 2AS: {data.get('best_at_2as_ready', '')}
+- Ngoại ngữ & Thực chiến: {data.get('best_at_global', '')}
+
+QUYẾT ĐỊNH: {data.get('decision', '')}
+"""
+        final_resp = {
+            # Trường chính — bên thứ 3 chỉ cần report_text
+            "report_text": report_text
+        }
+
+        # ── Action Log: finish ────────────────────────────────────────────────
+        _logger.finish_action(
+            action_name, status="success",
+            output_summary=f"decision={data.get('decision','')} ai={data.get('ai_test_total',0)} swat={data.get('swat_total',0)}",
+            ai_model="gpt-4o",
+            prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
+            duration_seconds=t.elapsed,
+        )
+
+        if api_use_cache and cache_key:
+            frappe.cache().set_value(cache_key, final_resp, expires_in_sec=86400 * 7)
+
+        return final_resp
+
+    except Exception as e:
+        try: frappe.db.rollback()
+        except: pass
+        _logger.finish_action(action_name, status="failed", error_message=str(e)[:500])
+        frappe.log_error(f"generate_candidate_report error: {str(e)[:80]}")
+        frappe.throw(str(e))
