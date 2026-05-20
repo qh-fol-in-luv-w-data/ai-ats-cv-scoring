@@ -129,6 +129,8 @@ class ActivityLogger:
     def start_action(self, session_name: str, action_type: str,
                      input_summary: str = "", input_detail: dict = None) -> str:
         """Tao action log voi status=running. Tra ve ten document."""
+        if not session_name:
+            return ""
         try:
             import json
             doc = frappe.get_doc({
@@ -191,6 +193,8 @@ class ActivityLogger:
                     attempt_number: int = 1,
                     error_code: str = "", error_message: str = "") -> str:
         """Ghi mot lan goi AI. Tra ve ten document."""
+        if not session_name:
+            return ""
         try:
             doc = frappe.get_doc({
                 "doctype": self.ai_call_dt,
