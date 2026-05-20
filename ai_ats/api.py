@@ -104,7 +104,7 @@ Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
 - AI Readiness Index (Chỉ số sẵn sàng AI): Điểm số tổng hợp (Thang điểm 100) -> ai_test_total.
 - Phân loại Ứng viên (ai_test_label): Dựa trên kết quả, phân loại thành [AI-Ready] hoặc [Non-AI].
 - Chấm điểm SWAT Elite (Thang 10) -> swat_total.
-- Kết quả SWAT Elite (swat_label): Đánh giá [Swat-Elite] (nếu swat_total >= 6.0) hoặc [KHÔNG ĐẠT] (nếu swat_total < 6.0).
+- Kết quả SWAT Elite (swat_label): Đánh giá [Swat-Elite] (nếu swat_total >= 6.0) hoặc [KHÔNG ĐẠT] (nếu swat_total < 6.0) (chấm nới điểm để dễ pass).
 - Chấm điểm 5G Test (Thang 10) -> g5_total.
 - LƯU Ý CHỐNG BỊA ĐẶT (Hallucination): Điểm AI Test PHẢI được chấm hoàn toàn dựa trên nội dung TEST AI. Điểm SWAT và 5G PHẢI dựa hoàn toàn trên nội dung TEST 5G. Nếu nội dung test bị lỗi, rỗng hoặc thiếu thông tin, TUYỆT ĐỐI KHÔNG tự bịa điểm (phải cho 0 điểm).
 - LỌC NHIỄU TÀI LIỆU HƯỚNG DẪN: Trong các tài liệu Hướng dẫn chấm điểm (Rubric) có thể có nhiều thông tin dư thừa. Bạn PHẢI BỎ QUA các phần râu ria và CHỈ TẬP TRUNG vào đúng "khung tiêu chuẩn chấm điểm" (barem/rubric) cốt lõi để đối chiếu với bài làm của ứng viên.
