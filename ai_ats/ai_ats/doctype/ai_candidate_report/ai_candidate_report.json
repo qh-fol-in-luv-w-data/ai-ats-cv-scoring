@@ -25,6 +25,7 @@
     {"fieldname": "ai_test_total",    "fieldtype": "Float",          "label": "Tổng điểm AI Test (/100)", "in_list_view": 1},
     {"fieldname": "ai_test_label",    "fieldtype": "Select",         "label": "Xếp loại AI Test",
       "options": "\nAI-Ready\nNon-AI\nSWAT Elite",                                                                    "in_list_view": 1},
+    {"fieldname": "ai_test_table",    "fieldtype": "Text Editor",    "label": "Bảng đánh giá chi tiết"},
 
     {"fieldname": "section_swat",     "fieldtype": "Section Break",  "label": "Kết quả SWAT Elite"},
     {"fieldname": "swat_total",       "fieldtype": "Float",          "label": "Tổng điểm SWAT (/10)",    "in_list_view": 1},
