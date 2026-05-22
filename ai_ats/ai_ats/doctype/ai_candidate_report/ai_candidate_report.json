@@ -5,57 +5,213 @@
   "is_submittable": 0,
   "track_changes": 1,
   "fields": [
-    {"fieldname": "section_meta",     "fieldtype": "Section Break",  "label": "Thông tin ứng viên"},
-    {"fieldname": "candidate_name",   "fieldtype": "Data",           "label": "Tên ứng viên",             "reqd": 1, "bold": 1, "in_list_view": 1},
-    {"fieldname": "position",         "fieldtype": "Small Text",           "label": "Vị trí ứng tuyển",         "in_list_view": 1},
-    {"fieldname": "col_break_1",      "fieldtype": "Column Break"},
-    {"fieldname": "email",            "fieldtype": "Data",           "label": "Email",                    "options": "Email"},
-    {"fieldname": "phone",            "fieldtype": "Data",           "label": "Số điện thoại"},
-    {"fieldname": "analysis_date",    "fieldtype": "Datetime",       "label": "Ngày phân tích",           "default": "now"},
-
-    {"fieldname": "section_links",    "fieldtype": "Section Break",  "label": "Link đầu vào"},
-    {"fieldname": "ai_test_url",      "fieldtype": "Small Text",           "label": "Link Test AI (Odoo)"},
-    {"fieldname": "g5_test_url",      "fieldtype": "Small Text",           "label": "Link Test 5G (Odoo)"},
-    {"fieldname": "col_break_2",      "fieldtype": "Column Break"},
-    {"fieldname": "eq_test_url",      "fieldtype": "Small Text",           "label": "Link Test EQ/IQ (jobtest.vn)"},
-    {"fieldname": "survey_url",       "fieldtype": "Small Text",           "label": "Link Phỏng vấn"},
-    {"fieldname": "jd_text",          "fieldtype": "Small Text",     "label": "Nội dung JD"},
-
-    {"fieldname": "section_ai",       "fieldtype": "Section Break",  "label": "Kết quả Bài Test AI"},
-    {"fieldname": "ai_test_total",    "fieldtype": "Float",          "label": "Tổng điểm AI Test (/100)", "in_list_view": 1},
-    {"fieldname": "ai_test_label",    "fieldtype": "Select",         "label": "Xếp loại AI Test",
-      "options": "\nAI-Ready\nNon-AI\nSWAT Elite",                                                                    "in_list_view": 1},
-    {"fieldname": "ai_test_table",    "fieldtype": "Text Editor",    "label": "Bảng đánh giá chi tiết"},
-
-    {"fieldname": "section_swat",     "fieldtype": "Section Break",  "label": "Kết quả SWAT Elite"},
-    {"fieldname": "swat_total",       "fieldtype": "Float",          "label": "Tổng điểm SWAT (/10)",    "in_list_view": 1},
-    {"fieldname": "swat_label",       "fieldtype": "Select",         "label": "SWAT Elite",
-      "options": "\nĐẠT\nKHÔNG ĐẠT",                                                                      "in_list_view": 1},
-
-    {"fieldname": "section_analysis", "fieldtype": "Section Break",  "label": "Phân tích năng lực chuyên sâu"},
-    
-    {"fieldname": "sb_strengths",         "fieldtype": "Section Break",  "label": "1. Điểm mạnh (Strengths)"},
-    {"fieldname": "strength_tech_skills", "fieldtype": "Small Text",     "label": "Kỹ năng công nghệ & chuyên môn"},
-    {"fieldname": "strength_exceeding",   "fieldtype": "Small Text",     "label": "Chỉ số vượt chuẩn so với JD"},
-    
-    {"fieldname": "sb_gaps",              "fieldtype": "Section Break",  "label": "2. Điểm hạn chế (Gaps)"},
-    {"fieldname": "gap_missing_skills",   "fieldtype": "Small Text",     "label": "Kỹ năng/tư duy thiếu hụt"},
-    {"fieldname": "gap_risks",            "fieldtype": "Small Text",     "label": "Rủi ro vận hành & bảo mật"},
-    
-    {"fieldname": "sb_best_at",           "fieldtype": "Section Break",  "label": "3. Năng lực nổi bật (Best At)"},
-    {"fieldname": "best_at_core",         "fieldtype": "Small Text",     "label": "Chuyên môn mạnh nhất"},
-    {"fieldname": "best_at_2as_ops",      "fieldtype": "Small Text",     "label": "Năng lực vận hành 2AS"},
-    {"fieldname": "best_at_2as_ready",    "fieldtype": "Small Text",     "label": "Mức độ sẵn sàng dùng 2AS"},
-    {"fieldname": "best_at_global",       "fieldtype": "Small Text",     "label": "Ngoại ngữ & Thực chiến"},
-
-    {"fieldname": "section_decision",     "fieldtype": "Section Break",  "label": "Quyết định"},
-    {"fieldname": "decision",             "fieldtype": "Select",         "label": "Quyết định tuyển dụng",
-      "options": "\nĐẠT\nKHÔNG ĐẠT\nTHEO DÕI THÊM",                                                      "in_list_view": 1}
+    {
+      "fieldname": "section_meta",
+      "fieldtype": "Section Break",
+      "label": "Thông tin ứng viên"
+    },
+    {
+      "fieldname": "candidate_name",
+      "fieldtype": "Data",
+      "label": "Tên ứng viên",
+      "reqd": 1,
+      "bold": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "position",
+      "fieldtype": "Small Text",
+      "label": "Vị trí ứng tuyển",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "col_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "email",
+      "fieldtype": "Data",
+      "label": "Email",
+      "options": "Email"
+    },
+    {
+      "fieldname": "phone",
+      "fieldtype": "Data",
+      "label": "Số điện thoại"
+    },
+    {
+      "fieldname": "analysis_date",
+      "fieldtype": "Datetime",
+      "label": "Ngày phân tích",
+      "default": "now"
+    },
+    {
+      "fieldname": "section_links",
+      "fieldtype": "Section Break",
+      "label": "Link đầu vào"
+    },
+    {
+      "fieldname": "ai_test_url",
+      "fieldtype": "Small Text",
+      "label": "Link Test AI (Odoo)"
+    },
+    {
+      "fieldname": "g5_test_url",
+      "fieldtype": "Small Text",
+      "label": "Link Test 5G (Odoo)"
+    },
+    {
+      "fieldname": "col_break_2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "eq_test_url",
+      "fieldtype": "Small Text",
+      "label": "Link Test EQ/IQ (jobtest.vn)"
+    },
+    {
+      "fieldname": "survey_url",
+      "fieldtype": "Small Text",
+      "label": "Link Phỏng vấn"
+    },
+    {
+      "fieldname": "jd_text",
+      "fieldtype": "Small Text",
+      "label": "Nội dung JD"
+    },
+    {
+      "fieldname": "section_ai",
+      "fieldtype": "Section Break",
+      "label": "Kết quả Bài Test AI"
+    },
+    {
+      "fieldname": "ai_test_total",
+      "fieldtype": "Float",
+      "label": "Tổng điểm AI Test (/100)",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "ai_test_label",
+      "fieldtype": "Select",
+      "label": "Xếp loại AI Test",
+      "options": "\nAI-Ready\nNon-AI\nSWAT Elite",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "ai_test_table",
+      "fieldtype": "Code",
+      "label": "Bảng đánh giá chi tiết",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "section_swat",
+      "fieldtype": "Section Break",
+      "label": "Kết quả SWAT Elite"
+    },
+    {
+      "fieldname": "swat_total",
+      "fieldtype": "Float",
+      "label": "Tổng điểm SWAT (/10)",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "swat_label",
+      "fieldtype": "Select",
+      "label": "SWAT Elite",
+      "options": "\nĐẠT\nKHÔNG ĐẠT",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "section_analysis",
+      "fieldtype": "Section Break",
+      "label": "Phân tích năng lực chuyên sâu"
+    },
+    {
+      "fieldname": "sb_strengths",
+      "fieldtype": "Section Break",
+      "label": "1. Điểm mạnh (Strengths)"
+    },
+    {
+      "fieldname": "strength_tech_skills",
+      "fieldtype": "Small Text",
+      "label": "Kỹ năng công nghệ & chuyên môn"
+    },
+    {
+      "fieldname": "strength_exceeding",
+      "fieldtype": "Small Text",
+      "label": "Chỉ số vượt chuẩn so với JD"
+    },
+    {
+      "fieldname": "sb_gaps",
+      "fieldtype": "Section Break",
+      "label": "2. Điểm hạn chế (Gaps)"
+    },
+    {
+      "fieldname": "gap_missing_skills",
+      "fieldtype": "Small Text",
+      "label": "Kỹ năng/tư duy thiếu hụt"
+    },
+    {
+      "fieldname": "gap_risks",
+      "fieldtype": "Small Text",
+      "label": "Rủi ro vận hành & bảo mật"
+    },
+    {
+      "fieldname": "sb_best_at",
+      "fieldtype": "Section Break",
+      "label": "3. Năng lực nổi bật (Best At)"
+    },
+    {
+      "fieldname": "best_at_core",
+      "fieldtype": "Small Text",
+      "label": "Chuyên môn mạnh nhất"
+    },
+    {
+      "fieldname": "best_at_2as_ops",
+      "fieldtype": "Small Text",
+      "label": "Năng lực vận hành 2AS"
+    },
+    {
+      "fieldname": "best_at_2as_ready",
+      "fieldtype": "Small Text",
+      "label": "Mức độ sẵn sàng dùng 2AS"
+    },
+    {
+      "fieldname": "best_at_global",
+      "fieldtype": "Small Text",
+      "label": "Ngoại ngữ & Thực chiến"
+    },
+    {
+      "fieldname": "section_decision",
+      "fieldtype": "Section Break",
+      "label": "Quyết định"
+    },
+    {
+      "fieldname": "decision",
+      "fieldtype": "Select",
+      "label": "Quyết định tuyển dụng",
+      "options": "\nĐẠT\nKHÔNG ĐẠT\nTHEO DÕI THÊM",
+      "in_list_view": 1
+    }
   ],
   "permissions": [
-    {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
-    {"role": "HR Manager",     "read": 1, "write": 1, "create": 1},
-    {"role": "HR User",        "read": 1}
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    },
+    {
+      "role": "HR Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1
+    },
+    {
+      "role": "HR User",
+      "read": 1
+    }
   ],
   "title_field": "candidate_name",
   "sort_field": "modified",
