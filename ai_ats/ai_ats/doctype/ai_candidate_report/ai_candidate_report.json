@@ -122,6 +122,12 @@
       "in_list_view": 1
     },
     {
+      "fieldname": "swat_table",
+      "fieldtype": "Code",
+      "label": "Bảng đánh giá SWAT chi tiết",
+      "options": "JSON"
+    },
+    {
       "fieldname": "section_analysis",
       "fieldtype": "Section Break",
       "label": "Phân tích năng lực chuyên sâu"
