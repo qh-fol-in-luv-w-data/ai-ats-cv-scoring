@@ -596,32 +596,32 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 
         report_text = f"""BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)
 
-**Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)**
-- **AI Readiness Index (Chỉ số sẵn sàng AI):** {data.get('ai_test_total', 0)}/100
-- **Phân loại Ứng viên:** [{data.get('ai_test_label', '')}]
-- **Điểm SWAT Elite:** {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
+<strong>Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)</strong>
+- <strong>AI Readiness Index (Chỉ số sẵn sàng AI):</strong> {data.get('ai_test_total', 0)}/100
+- <strong>Phân loại Ứng viên:</strong> [{data.get('ai_test_label', '')}]
+- <strong>Điểm SWAT Elite:</strong> {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
 
-**Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)**
+<strong>Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)</strong>
 
-**ĐIỂM MẠNH (Strengths):**
-- **Kỹ năng công nghệ và năng lực chuyên môn nổi trội:**
+<strong>ĐIỂM MẠNH (Strengths):</strong>
+- <strong>Kỹ năng công nghệ và năng lực chuyên môn nổi trội:</strong>
   {data.get('strength_tech_skills', '')}
-- **Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:**
+- <strong>Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:</strong>
   {data.get('strength_exceeding', '')}
 
-**ĐIỂM HẠN CHẾ (Gaps & Misalignments):**
-- **Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:**
+<strong>ĐIỂM HẠN CHẾ (Gaps & Misalignments):</strong>
+- <strong>Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:</strong>
   {data.get('gap_missing_skills', '')}
-- **Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:**
+- <strong>Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:</strong>
   {data.get('gap_risks', '')}
 
-**NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):**
-- **Chuyên môn mạnh nhất:** {data.get('best_at_core', '')}
-- **Năng lực vận hành 2AS:** {data.get('best_at_2as_ops', '')}
-- **Mức độ sẵn sàng sử dụng 2AS:** {data.get('best_at_2as_ready', '')}
-- **Ngoại ngữ & Thực chiến:** {data.get('best_at_global', '')}
+<strong>NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):</strong>
+- <strong>Chuyên môn mạnh nhất:</strong> {data.get('best_at_core', '')}
+- <strong>Năng lực vận hành 2AS:</strong> {data.get('best_at_2as_ops', '')}
+- <strong>Mức độ sẵn sàng sử dụng 2AS:</strong> {data.get('best_at_2as_ready', '')}
+- <strong>Ngoại ngữ & Thực chiến:</strong> {data.get('best_at_global', '')}
 
-**QUYẾT ĐỊNH:** {data.get('decision', '')}
+<strong>QUYẾT ĐỊNH:</strong> {data.get('decision', '')}
 """
         final_resp = {
             # Trường chính — bên thứ 3 chỉ cần report_text
