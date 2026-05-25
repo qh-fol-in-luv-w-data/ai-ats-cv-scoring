@@ -20,11 +20,17 @@ _logger = ActivityLogger(prefix="ATS", module="AI ATS")
 
 # ── Internal scoring guides ───────────────────────────────────────────────────
 import os
+from dotenv import load_dotenv
+# Load .env từ app dir để đảm bảo OPENAI_API_KEY luôn có (kể cả bench serve không load env)
+load_dotenv(Path(__file__).parent / ".env", override=True)
+load_dotenv(Path(__file__).parent.parent / ".env", override=False)
 
 _BASE = Path(os.getenv("AI_ATS_DIR", str(Path(__file__).parent.parent.parent.parent / "AI_ATS")))
 _AI_SCORING_PDF  = _BASE / "CTG-KNC-TD-QĐ04.BM02-HƯỚNG DẪN CHẤM ĐIỂM BÀI TEST NĂNG LỰC AI (1).pdf"
 _SWAT_PRD_DOCX   = _BASE / "18052026_RD - PRD - AI Candidate Persona Report.docx"
-_G5_SCORING_DOCX = _BASE / "CTG-KNC-TD-QT01.BM16 - BỘ CÂU HỎI ĐÁNH GIÁ TIỀM NĂNG ỨNG VIÊN 4.docx"
+_G5_SCORING_DOCX  = _BASE / "CTG-KNC-TD-QT01.BM16 - BỘ CÂU HỎI ĐÁNH GIÁ TIỀM NĂNG ỨNG VIÊN 4.docx"
+_G5_QUESTION_DOCX  = Path(__file__).parent.parent / "CTG-KNC-TD-QT01.BM16 - BỘ CÂU HỎI ĐÁNH GIÁ TIỀM NĂNG ỨNG VIÊN 4 (1).docx"
+_AI_QUESTION_DOCX  = Path(__file__).parent.parent / "Demo hướng dẫn đánh giá bài test AI (1).docx"
 
 # ── OpenAI client — lazy init từ Frappe Single DocType hoặc env var ───────────
 def _get_openai_key() -> str:
@@ -37,8 +43,9 @@ def _get_openai_key() -> str:
         pass
     # Ưu tiên 2: AI ATS Settings Single DocType (nếu có)
     try:
-        key = frappe.db.get_single_value("AI ATS Settings", "openai_api_key")
-        if key: return key
+        if frappe.db.exists("DocType", "AI ATS Settings"):
+            key = frappe.db.get_single_value("AI ATS Settings", "openai_api_key")
+            if key: return key
     except Exception:
         pass
     # Fallback: biến môi trường OPENAI_API_KEY
@@ -105,10 +112,10 @@ Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
 - Phân loại Ứng viên (ai_test_label): Dựa trên kết quả, phân loại thành [AI-Ready] hoặc [Non-AI].
 - Chấm điểm SWAT Elite (Thang 10) -> swat_total.
 - Kết quả SWAT Elite (swat_label): Đánh giá [Swat-Elite] (nếu swat_total >= 6.0) hoặc [KHÔNG ĐẠT] (nếu swat_total < 6.0) (chấm nới điểm để dễ pass).
-- Chấm điểm 5G Test (Thang 10) -> g5_total.
+- Chấm điểm 5G Test (Thang 100) -> g5_total. CÁCH CHẤM 5G: Bài 5G gồm Phần A (trắc nghiệm 15 câu, mỗi câu 2đ, tổng 30đ) và Phần B (tự luận 15 câu, tổng 70đ). PHẢI điền g5_table đủ 5 hàng (G1–G5), mỗi hàng chấm trên thang diem_toi_da=20.0 (bao gồm tổng điểm trắc nghiệm và tự luận thuộc tiêu chí đó), tổng g5_total = tổng điểm 5 tiêu chí (thang 100). Đối chiếu đáp án từ Rubric 5G để tính điểm chính xác từng tiêu chí. KHÔNG được để nguyên giá trị mặc định 0.
 - LƯU Ý CHỐNG BỊA ĐẶT (Hallucination): Điểm AI Test PHẢI được chấm hoàn toàn dựa trên nội dung TEST AI. Điểm SWAT và 5G PHẢI dựa hoàn toàn trên nội dung TEST 5G. Nếu nội dung test bị lỗi, rỗng hoặc thiếu thông tin, TUYỆT ĐỐI KHÔNG tự bịa điểm (phải cho 0 điểm).
 - LỌC NHIỄU TÀI LIỆU HƯỚNG DẪN: Trong các tài liệu Hướng dẫn chấm điểm (Rubric) có thể có nhiều thông tin dư thừa. Bạn PHẢI BỎ QUA các phần râu ria và CHỈ TẬP TRUNG vào đúng "khung tiêu chuẩn chấm điểm" (barem/rubric) cốt lõi để đối chiếu với bài làm của ứng viên.
-- QUY TẮC TÀN KHỐC ĐỂ RA QUYẾT ĐỊNH (decision): Vì công ty áp dụng "No AI - No Hire", nếu ai_test_label là "Non-AI" HOẶC g5_total < 6.0 HOẶC swat_total < 6.0, thì BẮT BUỘC Quyết định (decision) = "KHÔNG ĐẠT" (Cúc luôn!). Chỉ được đánh giá "ĐẠT" khi tất cả đều qua môn.
+- QUY TẮC TÀN KHỐC ĐỂ RA QUYẾT ĐỊNH (decision): Vì công ty áp dụng "No AI - No Hire", nếu ai_test_label là "Non-AI" HOẶC g5_total < 60.0 HOẶC swat_total < 6.0, thì BẮT BUỘC Quyết định (decision) = "KHÔNG ĐẠT" (Cúc luôn!). Chỉ được đánh giá "ĐẠT" khi tất cả đều qua môn.
 
 Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
 Phân tích theo đúng cấu trúc sau (PHẢI PHÂN TÍCH KỸ, ĐỐI CHIẾU CHÉO GIỮA CV, JD, BÀI TEST VÀ PHỎNG VẤN/SURVEY):
@@ -147,6 +154,13 @@ CHỈ trả JSON theo schema:
     {"tru_cot":"Risk Control & Language","ty_trong":"10%","diem_tho":0,"diem_trong_so":0.0,"co_so":""}
   ],
   "swat_total":0.0, "swat_label":"ĐẠT",
+  "g5_table":[
+    {"tieu_chi":"G1 – Giao tiếp (Communication)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G2 – Giao lưu/Cọ xát thực tế (Exposure & Interaction)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G3 – Giám sát (Supervision)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G4 – Giải quyết vấn đề/Gỡ rối (Problem Solving)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G5 – Giảng dạy/Hướng dẫn (Teaching & Mentoring)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""}
+  ],
   "g5_total": 0.0,
   "strength_tech_skills": "", "strength_exceeding": "",
   "gap_missing_skills": "", "gap_risks": "",
@@ -648,3 +662,394 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         _logger.finish_action(action_name, status="failed", error_message=str(e)[:500])
         frappe.log_error(f"generate_candidate_report error: {str(e)[:80]}")
         frappe.throw(str(e))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Endpoint: score_tests  — Chấm điểm & trả bảng chi tiết (không lưu DocType)
+# /api/method/ai_ats.api.score_tests
+# ══════════════════════════════════════════════════════════════════════════════
+
+@frappe.whitelist(allow_guest=True)
+def score_tests(
+    ai_test_url: str = "",
+    g5_test_url: str = "",
+    eq_test_url: str = "",
+    survey_url: str = "",
+    jd_text: str = "",
+    cv_text: str = "",
+    api_use_cache=0,
+):
+    """
+    Chấm điểm bài test và trả bảng chi tiết AI Test / SWAT / 5G.
+    Không lưu DocType. Tập trung vào scoring tables để dễ review.
+
+    OUTPUT:
+        tables_text  — bảng ASCII dễ đọc (copy ra terminal/chat)
+        ai_test_table, swat_table, g5_table  — raw JSON
+        ai_test_total, swat_total, g5_total, decision
+    """
+    if isinstance(api_use_cache, str):
+        api_use_cache = api_use_cache.lower() in ['true', '1', 't', 'yes']
+    else:
+        api_use_cache = bool(api_use_cache)
+
+    # CV từ upload
+    if frappe.request and frappe.request.files:
+        f = frappe.request.files.get("cv_file")
+        if f:
+            raw = f.stream.read()
+            cv_text = _pdf_bytes(raw) if (f.filename or "").lower().endswith(".pdf") else _docx_bytes(raw)
+
+    ai_txt = _scrape(ai_test_url)
+    g5_txt = _scrape(g5_test_url)
+    eq_txt = _scrape(eq_test_url)
+    sv_txt = _scrape(survey_url) if survey_url else "[Chưa có]"
+
+    ai_guide = _read_cached(_AI_SCORING_PDF, api_use_cache)
+    swat_prd = _read_cached(_SWAT_PRD_DOCX, api_use_cache)
+    g5_guide = _read_cached(_G5_SCORING_DOCX, api_use_cache)
+
+    user_msg = f"""### CV: {cv_text[:8000]}
+### JD: {jd_text[:5000]}
+### AI SCORING GUIDE: {ai_guide[:15000]}
+### SWAT PRD: {swat_prd[:15000]}
+### G5 GUIDE: {g5_guide[:20000]}
+### TEST AI (link): {ai_txt[:10000]}
+### TEST 5G (link): {g5_txt[:10000]}
+### EQ/IQ (link): {eq_txt[:5000]}
+### PHỎNG VẤN: {sv_txt[:5000]}
+Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
+Trả về JSON hợp lệ, điền đủ mọi trường."""
+
+    # Cache (off mặc định vì endpoint này dùng để review)
+    if api_use_cache:
+        raw_key = f"score_tests_v1_{cv_text}{jd_text}{ai_test_url}{g5_test_url}{eq_test_url}{survey_url}"
+        req_hash = hashlib.md5(raw_key.encode('utf-8')).hexdigest()
+        cache_key = f"ai_ats_score_{req_hash}"
+        cached = frappe.cache().get_value(cache_key)
+        if cached:
+            return cached
+
+    resp = _get_gpt().chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
+        response_format={"type": "json_object"},
+        temperature=0.2,
+        max_tokens=4000,
+    )
+    data = json.loads(resp.choices[0].message.content)
+
+    # ── Build bảng ASCII dễ đọc ───────────────────────────────────────────────
+    sep  = "+" + "-"*5 + "+" + "-"*35 + "+" + "-"*10 + "+" + "-"*10 + "+" + "-"*50 + "+"
+    hdr  = "| {:<3} | {:<33} | {:>8} | {:>8} | {:<48} |"
+    row  = "| {:<3} | {:<33} | {:>8} | {:>8} | {:<48} |"
+
+    lines = []
+
+    # Bảng 1: AI Test
+    lines.append("\n╔══════════════════════════════════════════════════════════════════╗")
+    lines.append(  "║          BẢNG CHẤM ĐIỂM AI TEST (thang 100)                     ║")
+    lines.append(  "╚══════════════════════════════════════════════════════════════════╝")
+    lines.append(sep)
+    lines.append(hdr.format("Câu", "Nội dung", "Tối đa", "Điểm", "Lý do"))
+    lines.append(sep)
+    for r in data.get("ai_test_table", []):
+        lines.append(row.format(
+            str(r.get("cau", "")),
+            str(r.get("noi_dung", ""))[:33],
+            str(r.get("diem_toi_da", "")),
+            str(r.get("diem_cham", "")),
+            str(r.get("ly_do", ""))[:48],
+        ))
+    lines.append(sep)
+    lines.append(f"  TỔNG AI TEST: {data.get('ai_test_total', 0)}/100  →  [{data.get('ai_test_label', '')}]")
+
+    # Bảng 2: SWAT
+    sep2 = "+" + "-"*35 + "+" + "-"*8 + "+" + "-"*8 + "+" + "-"*10 + "+" + "-"*50 + "+"
+    hdr2 = "| {:<33} | {:>6} | {:>6} | {:>8} | {:<48} |"
+    lines.append("\n╔══════════════════════════════════════════════════════════════════╗")
+    lines.append(  "║          BẢNG CHẤM ĐIỂM SWAT ELITE (thang 10)                   ║")
+    lines.append(  "╚══════════════════════════════════════════════════════════════════╝")
+    lines.append(sep2)
+    lines.append(hdr2.format("Trụ cột", "Tỷ trọng", "Điểm thô", "Trọng số", "Cơ sở"))
+    lines.append(sep2)
+    for r in data.get("swat_table", []):
+        lines.append(hdr2.format(
+            str(r.get("tru_cot", ""))[:33],
+            str(r.get("ty_trong", "")),
+            str(r.get("diem_tho", "")),
+            str(r.get("diem_trong_so", "")),
+            str(r.get("co_so", ""))[:48],
+        ))
+    lines.append(sep2)
+    lines.append(f"  TỔNG SWAT: {data.get('swat_total', 0)}/10  →  [{data.get('swat_label', '')}]")
+
+    # Bảng 3: 5G
+    sep3 = "+" + "-"*45 + "+" + "-"*10 + "+" + "-"*10 + "+" + "-"*50 + "+"
+    hdr3 = "| {:<43} | {:>8} | {:>8} | {:<48} |"
+    lines.append("\n╔══════════════════════════════════════════════════════════════════╗")
+    lines.append(  "║          BẢNG CHẤM ĐIỂM 5G TEST (thang 10)                      ║")
+    lines.append(  "╚══════════════════════════════════════════════════════════════════╝")
+    lines.append(sep3)
+    lines.append(hdr3.format("Tiêu chí", "Tối đa", "Điểm", "Lý do"))
+    lines.append(sep3)
+    for r in data.get("g5_table", []):
+        lines.append(hdr3.format(
+            str(r.get("tieu_chi", ""))[:43],
+            str(r.get("diem_toi_da", "")),
+            str(r.get("diem_cham", "")),
+            str(r.get("ly_do", ""))[:48],
+        ))
+    lines.append(sep3)
+    lines.append(f"  TỔNG 5G: {data.get('g5_total', 0)}/100")
+
+    lines.append(f"\n{'═'*68}")
+    lines.append(f"  ⚡ QUYẾT ĐỊNH CUỐI: {data.get('decision', '')}")
+    lines.append(f"{'═'*68}")
+
+    tables_text = "\n".join(lines)
+
+    result = {
+        "tables_text":     tables_text,
+        "ai_test_table":   data.get("ai_test_table", []),
+        "ai_test_total":   data.get("ai_test_total", 0),
+        "ai_test_label":   data.get("ai_test_label", ""),
+        "swat_table":      data.get("swat_table", []),
+        "swat_total":      data.get("swat_total", 0),
+        "swat_label":      data.get("swat_label", ""),
+        "g5_table":        data.get("g5_table", []),
+        "g5_total":        data.get("g5_total", 0),
+        "decision":        data.get("decision", ""),
+        "candidate_name":  data.get("candidate_name", ""),
+    }
+
+    if api_use_cache:
+        frappe.cache().set_value(cache_key, result, expires_in_sec=86400)
+
+    return result
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Endpoint: score_single  — Chấm 1 bài theo type (ai | 5g)
+# /api/method/ai_ats.api.score_single
+# Params: url=<link bài làm>  type=ai|5g
+# ══════════════════════════════════════════════════════════════════════════════
+
+# System prompt riêng cho từng loại — gọn hơn _SYSTEM, không hallucinate
+_SYSTEM_AI = """Bạn là chuyên gia chấm bài TEST AI của CT Group.
+CHỈ chấm bài AI Test bên dưới dựa trên rubric được cung cấp.
+Trả JSON:
+{
+  "candidate_name": "",
+  "table": [
+    {"cau": 1, "noi_dung": "AI Awareness",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 2, "noi_dung": "AI Daily Use",        "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 3, "noi_dung": "AI Self-Assessment",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 4, "noi_dung": "AI Problem Solving",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 5, "noi_dung": "Prompt Engineering",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 6, "noi_dung": "AI x Teamwork",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 7, "noi_dung": "AI Productivity",     "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 8, "noi_dung": "AI Mindset",          "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 9, "noi_dung": "AI Limitation",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau":10, "noi_dung": "AI Growth Plan",      "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""}
+  ],
+  "total": 0,
+  "label": "AI-Ready",
+  "nhan_xet": ""
+}
+Quy tắc: label = "AI-Ready" nếu total >= 75, "AI-Khá" nếu 50–74, "Non-AI" nếu < 50. KHÔNG bịa điểm."""
+
+_SYSTEM_AI = """Bạn là chuyên gia chấm bài TEST AI của CT Group.
+CHỈ chấm bài AI Test bên dưới dựa trên rubric được cung cấp.
+Rubric có 10 câu x 10 điểm = 100 điểm, mỗi câu có 4 mức: 0–3 / 4–6 / 7–9 / 10 điểm.
+Chấm CHÍNH XÁC theo từng mức, giải thích rõ lý do dựa vào nội dung bài làm.
+Trả JSON:
+{
+  "candidate_name": "",
+  "table": [
+    {"cau": 1, "noi_dung": "AI Awareness",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 2, "noi_dung": "AI Daily Use",        "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 3, "noi_dung": "AI Self-Assessment",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 4, "noi_dung": "AI Problem Solving",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 5, "noi_dung": "Prompt Engineering",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 6, "noi_dung": "AI x Teamwork",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 7, "noi_dung": "AI Productivity",     "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 8, "noi_dung": "AI Mindset",          "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau": 9, "noi_dung": "AI Limitation",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
+    {"cau":10, "noi_dung": "AI Growth Plan",      "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""}
+  ],
+  "total": 0,
+  "label": "",
+  "nhan_xet": ""
+}
+Quy tắc: label = "Xuất sắc" (90-100) | "Khá" (75-89) | "Cơ bản" (50-74) | "Không đạt" (<50). KHÔNG bịa điểm."""
+
+_SYSTEM_5G = """Bạn là chuyên gia chấm bài TEST 5G (tiềm năng quản lý) của CT Group.
+Bài 5G gồm 2 phần, TỔNG ĐIỂM THANG 100:
+- Phần A: 15 câu trắc nghiệm = 30 điểm (mỗi câu đúng = 2đ, sai = 0đ). Đáp án đúng lấy từ rubric.
+- Phần B: 15 câu tự luận (câu 16–30) = 70 điểm. Mỗi nhóm tiêu chí (G1-G5) có 3 câu, tổng 14 điểm/nhóm (phân bổ điểm tối đa là 5, 5, 4 cho 3 câu tương ứng).
+
+YÊU CẦU OUTPUT:
+1. phan_a: mảng 15 phần tử — từng câu trắc nghiệm: số câu, đáp án ứng viên chọn, đáp án đúng, đúng/sai, điểm (2 hoặc 0)
+2. phan_b: mảng 15 phần tử — từng câu tự luận: số câu, nội dung câu hỏi ngắn gọn, diem_toi_da (từ rubric), diem_cham, nhan_xet
+3. total_phan_a: tổng điểm phần A (tối đa 30)
+4. total_phan_b: tổng điểm phần B (tối đa 70)
+5. total: tổng cộng (tối đa 100)
+6. ket_luan: "Xuất sắc" (91-100) | "Giỏi" (75-90) | "Trung bình" (50-74) | "Không phù hợp" (<50)
+7. candidate_name
+
+JSON schema:
+{
+  "candidate_name": "",
+  "phan_a": [
+    {"cau": 1, "dap_an_chon": "", "dap_an_dung": "", "ket_qua": "Đúng", "diem": 2},
+    {"cau": 2, "dap_an_chon": "", "dap_an_dung": "", "ket_qua": "Sai",  "diem": 0}
+  ],
+  "phan_b": [
+    {"cau": 16, "noi_dung": "G1 - Mô tả tình huống truyền đạt thông tin khó", "diem_toi_da": 5, "diem_cham": 0.0, "nhan_xet": ""}
+  ],
+  "total_phan_a": 0,
+  "total_phan_b": 0.0,
+  "total": 0.0,
+  "ket_luan": "",
+  "nhan_xet_chung": ""
+}
+LƯU Ý: PHẢI điền đủ 15 phần tử phan_a và 15 phần tử phan_b. KHÔNG bịa điểm. Nếu ứng viên không trả lời câu nào thì diem_cham=0."""
+
+
+@frappe.whitelist(allow_guest=True)
+def score_single(url: str = "", type: str = "ai"):
+    """
+    Chấm 1 bài test theo loại.
+
+    INPUT:
+        url   – link bài làm (survey print URL)
+        type  – "ai" hoặc "5g"
+
+    OUTPUT (JSON):
+        type, candidate_name, total, label (AI only), table, nhan_xet, tables_text
+    """
+    test_type = str(type).strip().lower()
+    if test_type not in ("ai", "5g"):
+        frappe.throw("type phải là 'ai' hoặc '5g'", frappe.ValidationError)
+    if not url:
+        frappe.throw("url không được để trống", frappe.ValidationError)
+
+    # Scrape bài làm
+    content = _scrape(url)
+    if content.startswith("["):
+        frappe.throw(f"Không scrape được nội dung từ URL: {content}", frappe.ValidationError)
+
+    # Load rubric tương ứng
+    if test_type == "ai":
+        # Ưu tiên dùng file docx mới có thang điểm 4 mức chi tiết
+        if _AI_QUESTION_DOCX.exists():
+            ai_guide = _docx_bytes(_AI_QUESTION_DOCX.read_bytes())
+        else:
+            ai_guide = _read_cached(_AI_SCORING_PDF, True)
+        system   = _SYSTEM_AI
+        max_tok  = 2500
+        user_msg = f"""### RUBRIC CHẤM ĐIỂM AI TEST (thang 4 mức, 10 câu x 10đ):\n{ai_guide}\n\n### BÀI LÀM ỨNG VIÊN:\n{content[:12000]}\n\nChấm từng câu theo đúng mức điểm từ rubric, trả JSON."""
+    else:
+        # Dùng file BM16 (1).docx có đủ câu hỏi + thang điểm tự luận
+        if _G5_QUESTION_DOCX.exists():
+            from ai_ats.api import _docx_bytes as _db
+            q_content = _db(_G5_QUESTION_DOCX.read_bytes())
+        else:
+            q_content = _read_cached(_G5_SCORING_DOCX, True)
+        system   = _SYSTEM_5G
+        max_tok  = 5000
+        user_msg = f"""### BỘ CÂU HỎI + THANG ĐIỂM 5G (đây là rubric chuẩn, dùng để đối chiếu đáp án TN và chấm TL):\n{q_content[:25000]}\n\n### BÀI LÀM ỨNG VIÊN:\n{content[:12000]}\n\nChấm điểm đầy đủ 15 câu TN + 15 câu TL và trả JSON."""
+
+    resp = _get_gpt().chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user_msg}],
+        response_format={"type": "json_object"},
+        temperature=0.1,
+        max_tokens=max_tok,
+    )
+    data = json.loads(resp.choices[0].message.content)
+
+    # ── Server tự tính điểm lại (không tin GPT cộng) ──────────────────────────
+    if test_type == "ai":
+        rows = data.get("table", [])
+        ai_total = round(sum(float(r.get("diem_cham", 0)) for r in rows), 1)
+        if ai_total >= 90:
+            ai_label = "Xuất sắc"
+        elif ai_total >= 75:
+            ai_label = "Khá"
+        elif ai_total >= 50:
+            ai_label = "Cơ bản"
+        else:
+            ai_label = "Không đạt"
+
+        result = {
+            "type":           "ai",
+            "candidate_name": data.get("candidate_name", ""),
+            "table":          rows,
+            "total":          ai_total,
+            "label":          ai_label,
+            "nhan_xet":       data.get("nhan_xet", ""),
+        }
+        
+        # LƯU VÀO DATABASE
+        doc = frappe.get_doc({
+            "doctype":              "AI Candidate Report",
+            "candidate_name":       data.get("candidate_name") or "Unknown",
+            "ai_test_url":          url,
+            "ai_test_total":        ai_total,
+            "ai_test_label":        ai_label,
+            "ai_test_table":        json.dumps(rows, ensure_ascii=False),
+            "analysis_date":        datetime.now(),
+        })
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+    else:
+        phan_a = data.get("phan_a", [])
+        phan_b = data.get("phan_b", [])
+
+        # Tính lại từng phần
+        total_a = round(sum(float(r.get("diem", 0)) for r in phan_a), 1)
+        total_b = round(sum(float(r.get("diem_cham", 0)) for r in phan_b), 1)
+        total   = round(total_a + total_b, 1)
+
+        if total >= 91:
+            ket_luan = "Xuất sắc"
+        elif total >= 75:
+            ket_luan = "Giỏi"
+        elif total >= 50:
+            ket_luan = "Trung bình"
+        else:
+            ket_luan = "Không phù hợp"
+
+        result = {
+            "type":           "5g",
+            "candidate_name": data.get("candidate_name", ""),
+            "phan_a":         phan_a,
+            "phan_b":         phan_b,
+            "total_phan_a":   total_a,
+            "total_phan_b":   total_b,
+            "total":          total,
+            "ket_luan":       ket_luan,
+            "nhan_xet_chung": data.get("nhan_xet_chung", ""),
+        }
+        
+        # LƯU VÀO DATABASE
+        swat_table = []
+        if phan_a: swat_table.extend(phan_a)
+        if phan_b: swat_table.extend(phan_b)
+        
+        doc = frappe.get_doc({
+            "doctype":              "AI Candidate Report",
+            "candidate_name":       data.get("candidate_name") or "Unknown",
+            "g5_test_url":          url,
+            "swat_total":           total,
+            "swat_label":           ket_luan,
+            "swat_table":           json.dumps(swat_table, ensure_ascii=False),
+            "analysis_date":        datetime.now(),
+        })
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+    return result
+
