@@ -996,6 +996,8 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
             ai_label = "Cơ bản"
         else:
             ai_label = "Không đạt"
+        
+        ai_label_db = "ĐẠT" if ai_label in ("Xuất sắc", "Giỏi") else "KHÔNG ĐẠT"
 
         result = {
             "type":           "ai",
@@ -1012,7 +1014,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
             "candidate_name":       data.get("candidate_name") or "Unknown",
             "ai_test_url":          url,
             "ai_test_total":        ai_total,
-            "ai_test_label":        ai_label,
+            "ai_test_label":        ai_label_db,
             "ai_test_table":        json.dumps(rows, ensure_ascii=False),
             "analysis_date":        datetime.now(),
         })
