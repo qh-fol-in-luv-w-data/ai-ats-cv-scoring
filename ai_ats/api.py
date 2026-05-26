@@ -918,7 +918,7 @@ LƯU Ý: PHẢI điền đủ 15 phần tử phan_a và 15 phần tử phan_b. K
 
 
 @frappe.whitelist(allow_guest=True)
-def score_single(url: str = "", type: str = "ai"):
+def score_single(url: str = "", type: str = "ai", api_use_cache=1):
     """
     Chấm 1 bài test theo loại.
 
@@ -935,10 +935,24 @@ def score_single(url: str = "", type: str = "ai"):
     if not url:
         frappe.throw("url không được để trống", frappe.ValidationError)
 
+    if isinstance(api_use_cache, str):
+        api_use_cache = api_use_cache.lower() in ['true', '1', 't', 'yes']
+    else:
+        api_use_cache = bool(api_use_cache)
+
     # Scrape bài làm
     content = _scrape(url)
     if content.startswith("["):
         frappe.throw(f"Không scrape được nội dung từ URL: {content}", frappe.ValidationError)
+
+    if api_use_cache:
+        import hashlib
+        raw_key = f"score_single_{test_type}_{url}_{content[:1000]}"
+        req_hash = hashlib.md5(raw_key.encode('utf-8')).hexdigest()
+        cache_key = f"ai_ats_score_single_{req_hash}"
+        cached = frappe.cache().get_value(cache_key)
+        if cached:
+            return cached
 
     # Load rubric tương ứng
     if test_type == "ai":
@@ -1050,6 +1064,9 @@ def score_single(url: str = "", type: str = "ai"):
         })
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
+
+    if api_use_cache:
+        frappe.cache().set_value(cache_key, result, expires_in_sec=86400)
 
     return result
 
