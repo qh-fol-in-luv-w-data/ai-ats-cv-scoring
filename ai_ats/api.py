@@ -1028,13 +1028,13 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         total   = round(total_a + total_b, 1)
 
         if total >= 91:
-            ket_luan = "Xuất sắc"
+            ket_luan = "XUẤT SẮC"
         elif total >= 75:
-            ket_luan = "Giỏi"
+            ket_luan = "GIỎI"
         elif total >= 50:
-            ket_luan = "Trung bình"
+            ket_luan = "TRUNG BÌNH"
         else:
-            ket_luan = "Không phù hợp"
+            ket_luan = "KHÔNG PHÙ HỢP"
 
         result = {
             "type":           "5g",
@@ -1054,14 +1054,14 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         if phan_b: swat_table.extend(phan_b)
         
         # Map sang giá trị Select hợp lệ của DocType (chỉ cho phép "ĐẠT" hoặc "KHÔNG ĐẠT")
-        swat_label_db = "ĐẠT" if ket_luan in ("Xuất sắc", "Giỏi") else "KHÔNG ĐẠT"
+        # swat_label_db = "ĐẠT" if ket_luan in ("Xuất sắc", "Giỏi") else "KHÔNG ĐẠT"
 
         doc = frappe.get_doc({
             "doctype":              "AI Candidate Report",
             "candidate_name":       data.get("candidate_name") or "Unknown",
             "g5_test_url":          url,
             "swat_total":           total,
-            "swat_label":           swat_label_db,
+            "swat_label":           ket_luan,
             "swat_table":           json.dumps(swat_table, ensure_ascii=False),
             "analysis_date":        datetime.now(),
         })
