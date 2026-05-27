@@ -104,6 +104,38 @@
       "options": "JSON"
     },
     {
+      "fieldname": "ai_test_nhan_xet",
+      "fieldtype": "Small Text",
+      "label": "Nhận xét AI Test"
+    },
+    {
+      "fieldname": "section_5g",
+      "fieldtype": "Section Break",
+      "label": "Kết quả Bài Test 5G"
+    },
+    {
+      "fieldname": "g5_total",
+      "fieldtype": "Float",
+      "label": "Tổng điểm 5G (/100)"
+    },
+    {
+      "fieldname": "g5_label",
+      "fieldtype": "Select",
+      "label": "Xếp loại 5G",
+      "options": "\nXuất sắc\nGiỏi\nTrung bình\nKhông phù hợp"
+    },
+    {
+      "fieldname": "g5_table",
+      "fieldtype": "Code",
+      "label": "Bảng đánh giá 5G chi tiết",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "g5_nhan_xet",
+      "fieldtype": "Small Text",
+      "label": "Nhận xét 5G"
+    },
+    {
       "fieldname": "section_swat",
       "fieldtype": "Section Break",
       "label": "Kết quả SWAT Elite"

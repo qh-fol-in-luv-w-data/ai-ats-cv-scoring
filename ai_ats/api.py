@@ -1067,6 +1067,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
             "ai_test_total":        ai_total,
             "ai_test_label":        ai_label_db,
             "ai_test_table":        json.dumps(rows, ensure_ascii=False),
+            "ai_test_nhan_xet":     data.get("nhan_xet", ""),
             "analysis_date":        datetime.now(),
         })
         doc.insert(ignore_permissions=True)
@@ -1101,21 +1102,17 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
             "nhan_xet_chung": data.get("nhan_xet_chung", ""),
         }
         
-        # LƯU VÀO DATABASE
-        swat_table = []
-        if phan_a: swat_table.extend(phan_a)
-        if phan_b: swat_table.extend(phan_b)
-        
-        # Map sang giá trị Select hợp lệ của DocType (chỉ cho phép "ĐẠT" hoặc "KHÔNG ĐẠT")
-        swat_label_db = "ĐẠT" if ket_luan in ("Xuất sắc", "Giỏi") else "KHÔNG ĐẠT"
+        # LƯU VÀO DATABASE — dùng fields g5_* (5G riêng, không dùng swat)
+        g5_full_table = {"phan_a": phan_a, "phan_b": phan_b}
 
         doc = frappe.get_doc({
             "doctype":              "AI Candidate Report",
             "candidate_name":       data.get("candidate_name") or "Unknown",
             "g5_test_url":          url,
-            "swat_total":           total,
-            "swat_label":           swat_label_db,
-            "swat_table":           json.dumps(swat_table, ensure_ascii=False),
+            "g5_total":             total,
+            "g5_label":             ket_luan,
+            "g5_table":             json.dumps(g5_full_table, ensure_ascii=False),
+            "g5_nhan_xet":          data.get("nhan_xet_chung", ""),
             "analysis_date":        datetime.now(),
         })
         doc.insert(ignore_permissions=True)
