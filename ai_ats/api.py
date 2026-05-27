@@ -1042,7 +1042,13 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         else:
             ai_label = "Không đạt"
         
-        ai_label_db = "ĐẠT" if ai_label in ("Xuất sắc", "Giỏi") else "KHÔNG ĐẠT"
+        # Map sang giá trị Select hợp lệ: "", "AI-Ready", "Non-AI", "SWAT Elite"
+        if ai_label == "Xuất sắc":
+            ai_label_db = "SWAT Elite"
+        elif ai_label in ("Khá", "Cơ bản"):
+            ai_label_db = "AI-Ready"
+        else:
+            ai_label_db = "Non-AI"
 
         result = {
             "type":           "ai",
