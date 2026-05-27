@@ -118,18 +118,63 @@ Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
 - QUY TẮC TÀN KHỐC ĐỂ RA QUYẾT ĐỊNH (decision): Vì công ty áp dụng "No AI - No Hire", nếu ai_test_label là "Non-AI" HOẶC g5_total < 60.0 HOẶC swat_total < 6.0, thì BẮT BUỘC Quyết định (decision) = "KHÔNG ĐẠT" (Cúc luôn!). Chỉ được đánh giá "ĐẠT" khi tất cả đều qua môn.
 
 Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
-Phân tích theo đúng cấu trúc sau (PHẢI PHÂN TÍCH KỸ, ĐỐI CHIẾU CHÉO GIỮA CV, JD, BÀI TEST VÀ PHỎNG VẤN/SURVEY):
-1. strengths (ĐIỂM MẠNH):
-  - Kỹ năng công nghệ và năng lực chuyên môn nổi trội (Nhớ bám sát yêu cầu JD và kết hợp thông tin từ Survey) -> strength_tech_skills.
-  - Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại -> strength_exceeding.
-2. gaps (ĐIỂM HẠN CHẾ):
-  - Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First (Đối chiếu kỹ với những gì JD đòi hỏi và Survey) -> gap_missing_skills.
-  - Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test -> gap_risks.
-3. best_at (NĂNG LỰC NỔI BẬT NHẤT):
-  - Chuyên môn mạnh nhất: Lĩnh vực lõi tạo giá trị ngay (Tổng hợp từ CV, JD và Survey) -> best_at_core.
-  - Năng lực vận hành 2AS: Mức độ khai thác Agentic AI Staff (Harvey, Patlytics...) -> best_at_2as_ops.
-  - Mức độ sẵn sàng sử dụng 2AS: Sự thích ứng, không e ngại giao việc cho AI -> best_at_2as_ready.
-  - Ngoại ngữ & Thực chiến: Khả năng triển khai dự án thực tế trong môi trường quốc tế -> best_at_global.
+
+QUY TẮC EVIDENCE BẮT BUỘC (áp dụng cho TOÀN BỘ Phần II):
+Mỗi nhận xét PHẢI kèm evidence theo format: "→ [NGUỒN] \"trích dẫn nguyên văn hoặc mô tả chi tiết\""
+Nguồn hợp lệ: [CV], [AI Test Câu X], [5G Câu Y], [Survey], [JD].
+VÍ DỤ ĐÚNG: "✓✓ Python/FastAPI: thành thạo mức advanced → [CV] '3 năm xây hệ thống microservice với FastAPI, deploy production 50k req/day' → [AI Test Câu 5] 'ứng viên dùng prompt chaining để tự động hoá pipeline ETL'"
+VÍ DỤ SAI (không chấp nhận): "Ứng viên có kỹ năng tốt về Python" — quá chung chung, không có evidence.
+KHÔNG được tự bịa evidence. Nếu không có dữ liệu, ghi rõ "[Không có thông tin trong bài test/CV/Survey]".
+Mỗi trường tối thiểu 4–6 bullet, mỗi bullet 1–3 câu có evidence cụ thể. Viết bằng tiếng Việt.
+
+1. strengths (ĐIỂM MẠNH) — Đối chiếu chéo: CV ↔ JD ↔ điểm test ↔ Survey:
+
+  strength_tech_skills: Kỹ năng công nghệ & năng lực chuyên môn nổi trội. Phân tích theo 3 tầng:
+    [A] NĂNG LỰC KỸ THUẬT — Với TỪNG tool/tech/platform, nêu: tên công nghệ + mức độ thành thạo + evidence từ ÍT NHẤT 2 nguồn khác nhau (CV xác nhận kinh nghiệm, test chứng minh hiểu sâu). Format: "• [Tool/Tech] – [mức độ] → [CV] '...' → [AI Test Câu X hoặc 5G Câu Y] '...'"
+    [B] KỸ NĂNG MỀM & TƯ DUY — Trích dẫn ÍT NHẤT 2 câu trả lời nguyên văn từ 5G hoặc Survey thể hiện tư duy phân tích, cách xử lý tình huống, giao tiếp. Format: "• [Kỹ năng] → [5G Câu Y] '...(trích nguyên văn đủ 1–2 câu của ứng viên)...'"
+    [C] PHÙ HỢP JD — Liệt kê từng yêu cầu cốt lõi trong JD, đánh dấu ✓✓/✓/~ kèm evidence. Format: "• [Yêu cầu JD: ...] ✓✓ → [CV] '...' → [Test] '...'"
+
+  strength_exceeding: Các điểm VƯỢT CHUẨN so với JD (added value ứng viên mang lại).
+    Tối thiểu 3 điểm, mỗi điểm: nêu năng lực + giải thích giá trị với CT Group/2AS + evidence cụ thể. Format: "• [Năng lực vượt trội X] — JD không yêu cầu nhưng có giá trị vì [...] → [Nguồn] '...'"
+
+2. gaps (ĐIỂM HẠN CHẾ) — Phân tích thẳng thắn, có bằng chứng:
+
+  gap_missing_skills: Kỹ năng/năng lực thiếu hoặc tư duy chưa AI-first. Phân loại:
+    [THIẾU CỨNG – CRITICAL] Thiếu hoàn toàn, ảnh hưởng trực tiếp năng suất: nêu kỹ năng + evidence từ CV (không có kinh nghiệm) + test (câu trả lời yếu/sai/thiếu) → trích dẫn câu trả lời tệ nhất.
+    [CẦN CẢI THIỆN – MODERATE] Có nhưng chưa đủ sâu: so sánh yêu cầu JD vs năng lực hiện tại + evidence → trích dẫn câu trả lời thể hiện gap.
+    [TƯ DUY AI-FIRST – MINOR/MODERATE] Trích dẫn ÍT NHẤT 1 câu trả lời cụ thể từ AI Test chứng minh ứng viên chỉ surface-level: "[AI Test Câu X] '...(nguyên văn)...' — Nhận xét: câu này cho thấy ứng viên chưa hiểu sâu về [...] vì [...]"
+
+  gap_risks: Rủi ro vận hành & bảo mật — MỖI rủi ro phải kèm evidence từ bài làm:
+    • Rủi ro bảo mật: [có/không] câu trả lời nào tiết lộ thông tin nhạy cảm? → [Nguồn] '...'
+    • Rủi ro hiệu suất: dựa trên điểm AI Test và 5G, ứng viên có cần support nhiều không? → evidence cụ thể
+    • Rủi ro văn hóa AI: dấu hiệu e ngại/từ chối AI từ bài làm → [AI Test Câu X] '...'
+    • Rủi ro reliability: câu trả lời mâu thuẫn hoặc thiếu nhất quán? → so sánh [Nguồn A] '...' với [Nguồn B] '...'
+
+3. best_at (NĂNG LỰC NỔI BẬT NHẤT) — Tổng hợp & định vị:
+
+  best_at_core: Trả lời thẳng: "Ứng viên này BEST AT [X]" — X phải là 1 câu súc tích, gắn với JD.
+    Sau đó liệt kê top 3 năng lực core có thể đóng góp ngay từ tuần đầu, mỗi năng lực kèm:
+    - Evidence từ CV (kinh nghiệm thực tế đã làm)
+    - Evidence từ test (chứng minh hiểu sâu, không chỉ nói suông)
+    Format: "• [Năng lực] → [CV] '...' → [AI Test/5G Câu X] '...'"
+
+  best_at_2as_ops: Năng lực vận hành 2AS tools. Trả lời 3 câu hỏi có evidence:
+    (1) Đã dùng AI tool nào? → [CV/Survey] '...' — nêu rõ tên tool, cách dùng
+    (2) Mức hands-on: chỉ prompt hay config/orchestrate? → [AI Test Câu X] '...(nguyên văn)...' — phân tích sâu câu trả lời này
+    (3) Tiềm năng 30–60 ngày: dựa trên điểm Prompt Engineering + AI Growth Plan → trích dẫn
+    Kết luận: Sơ cấp / Trung cấp / Nâng cao — giải thích tại sao
+
+  best_at_2as_ready: Mức độ sẵn sàng giao việc cho AI. Phân loại [AI-Native/Willing/Hesitant/Resistant]:
+    - Từ AI Test (Câu AI Mindset & AI Teamwork): trích dẫn nguyên văn câu trả lời + phân tích thái độ
+    - Từ Survey: ứng viên nói gì về AI trong phỏng vấn? → '[Survey] ...'
+    - Từ CV: có dự án AI thực chiến nào chứng minh không chỉ nói? → '[CV] ...'
+    Kết luận phân loại kèm lý do cụ thể dựa trên 3 nguồn trên
+
+  best_at_global: Ngoại ngữ & thực chiến quốc tế:
+    (1) Trình độ thực tế: có câu trả lời nào bằng tiếng Anh không? Chất lượng thế nào? → [AI Test/5G] trích dẫn nếu có; CV khai trình độ gì → [CV] '...'
+    (2) Kinh nghiệm quốc tế: → [CV] '...' (dự án, công ty, stakeholder nước ngoài)
+    (3) Multicultural readiness: → [Survey] '...' hoặc [CV] '...'
+
 
 CHỈ trả JSON theo schema:
 {
