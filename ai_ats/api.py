@@ -733,6 +733,15 @@ def score_tests(
         ai_test_table, swat_table, g5_table  — raw JSON
         ai_test_total, swat_total, g5_total, decision
     """
+    # ── Session & Action Logging ──
+    session_id = frappe.get_request_header("X-App-Session-Id") or ""
+    session_name = _ensure_session(session_id)
+    action_name = _logger.start_action(
+        session_name,
+        action_type="score_tests",
+        input_summary=f"ai={ai_test_url[:80]}, g5={g5_test_url[:80]}",
+    )
+
     if isinstance(api_use_cache, str):
         api_use_cache = api_use_cache.lower() in ['true', '1', 't', 'yes']
     else:
@@ -775,14 +784,24 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         if cached:
             return cached
 
-    resp = _get_gpt().chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
-        response_format={"type": "json_object"},
-        temperature=0.2,
-        max_tokens=4000,
-    )
+    with Timer() as t:
+        resp = _get_gpt().chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
+            response_format={"type": "json_object"},
+            temperature=0.2,
+            max_tokens=4000,
+        )
     data = json.loads(resp.choices[0].message.content)
+    _usage = resp.usage
+    _p_tok = _usage.prompt_tokens if _usage else 0
+    _c_tok = _usage.completion_tokens if _usage else 0
+    _logger.log_ai_call(
+        session_name, action_name,
+        call_type="score_tests", ai_model="gpt-4o",
+        prompt_tokens=_p_tok, completion_tokens=_c_tok,
+        duration_seconds=t.elapsed, status="success",
+    )
 
     # ── Build bảng ASCII dễ đọc ───────────────────────────────────────────────
     sep  = "+" + "-"*5 + "+" + "-"*35 + "+" + "-"*10 + "+" + "-"*10 + "+" + "-"*50 + "+"
@@ -871,6 +890,13 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
     if api_use_cache:
         frappe.cache().set_value(cache_key, result, expires_in_sec=86400)
 
+    _logger.finish_action(
+        action_name, status="success",
+        output_summary=f"ai={data.get('ai_test_total',0)}, swat={data.get('swat_total',0)}, g5={data.get('g5_total',0)}",
+        ai_model="gpt-4o",
+        prompt_tokens=_p_tok, completion_tokens=_c_tok,
+        duration_seconds=t.elapsed,
+    )
     return result
 
 
@@ -974,10 +1000,21 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
     OUTPUT (JSON):
         type, candidate_name, total, label (AI only), table, nhan_xet, tables_text
     """
+    # ── Session & Action Logging ──
+    session_id = frappe.get_request_header("X-App-Session-Id") or ""
+    session_name = _ensure_session(session_id)
+    action_name = _logger.start_action(
+        session_name,
+        action_type="score_single",
+        input_summary=f"type={type}, url={url[:80]}",
+    )
+
     test_type = str(type).strip().lower()
     if test_type not in ("ai", "5g"):
+        _logger.finish_action(action_name, status="failed", error_message="Invalid type")
         frappe.throw("type phải là 'ai' hoặc '5g'", frappe.ValidationError)
     if not url:
+        _logger.finish_action(action_name, status="failed", error_message="Missing url")
         frappe.throw("url không được để trống", frappe.ValidationError)
 
     if isinstance(api_use_cache, str):
@@ -988,6 +1025,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
     # Scrape bài làm
     content = _scrape(url)
     if content.startswith("["):
+        _logger.finish_action(action_name, status="failed", error_message=f"Scrape failed: {content[:200]}")
         frappe.throw(f"Không scrape được nội dung từ URL: {content}", frappe.ValidationError)
 
     if api_use_cache:
@@ -997,6 +1035,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         cache_key = f"ai_ats_score_single_{req_hash}"
         cached = frappe.cache().get_value(cache_key)
         if cached:
+            _logger.finish_action(action_name, status="success", output_summary="from_cache", from_cache=True)
             return cached
 
     # Load rubric tương ứng
@@ -1020,14 +1059,24 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         max_tok  = 5000
         user_msg = f"""### BỘ CÂU HỎI + THANG ĐIỂM 5G (đây là rubric chuẩn, dùng để đối chiếu đáp án TN và chấm TL):\n{q_content[:25000]}\n\n### BÀI LÀM ỨNG VIÊN:\n{content[:12000]}\n\nChấm điểm đầy đủ 15 câu TN + 15 câu TL và trả JSON."""
 
-    resp = _get_gpt().chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": user_msg}],
-        response_format={"type": "json_object"},
-        temperature=0.1,
-        max_tokens=max_tok,
-    )
+    with Timer() as t:
+        resp = _get_gpt().chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": user_msg}],
+            response_format={"type": "json_object"},
+            temperature=0.1,
+            max_tokens=max_tok,
+        )
     data = json.loads(resp.choices[0].message.content)
+    _usage = resp.usage
+    _p_tok = _usage.prompt_tokens if _usage else 0
+    _c_tok = _usage.completion_tokens if _usage else 0
+    _logger.log_ai_call(
+        session_name, action_name,
+        call_type=f"score_single_{test_type}", ai_model="gpt-4o",
+        prompt_tokens=_p_tok, completion_tokens=_c_tok,
+        duration_seconds=t.elapsed, status="success",
+    )
 
     # ── Server tự tính điểm lại (không tin GPT cộng) ──────────────────────────
     if test_type == "ai":
@@ -1124,5 +1173,12 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
     if api_use_cache:
         frappe.cache().set_value(cache_key, result, expires_in_sec=86400)
 
+    _logger.finish_action(
+        action_name, status="success",
+        output_summary=f"type={test_type}, total={result.get('total',0)}",
+        ai_model="gpt-4o",
+        prompt_tokens=_p_tok, completion_tokens=_c_tok,
+        duration_seconds=t.elapsed,
+    )
     return result
 
