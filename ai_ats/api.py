@@ -3,7 +3,7 @@ AI ATS – API Endpoints
 /api/method/ai_ats.api.generate_candidate_report
 /api/method/ai_ats.api.get_context
 """
-import io, json, warnings, hashlib, uuid
+import io, json, re, warnings, hashlib, uuid
 import frappe, requests
 import pypdf
 from bs4 import BeautifulSoup
@@ -92,19 +92,234 @@ def _read_cached(path: Path, use_cache: bool = True) -> str:
     frappe.cache().set_value(cache_key, content, expires_in_sec=86400)
     return content
 
-def _scrape(url: str) -> str:
-    if not url: return "[Chưa có]"
+def _scrape_playwright(url: str) -> str:
+    """Dùng Playwright headless để render JS rồi lấy text. Dùng khi HTTP scrape thất bại."""
     try:
-        r = requests.get(url, timeout=20, verify=False)
+        import asyncio
+        from playwright.async_api import async_playwright
+
+        async def _run():
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(headless=True)
+                try:
+                    page = await browser.new_page(viewport={"width": 1280, "height": 900})
+                    await page.goto(url, wait_until="networkidle", timeout=30000)
+                    await page.wait_for_timeout(2000)
+                    return await page.inner_text("body")
+                finally:
+                    await browser.close()
+
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    return pool.submit(asyncio.run, _run()).result(timeout=40)
+            else:
+                return loop.run_until_complete(_run())
+        except RuntimeError:
+            return asyncio.run(_run())
+    except Exception:
+        return ""
+
+def _scrape_many_playwright(urls: list) -> list:
+    """Scrape nhiều URL song song trong 1 browser — nhanh hơn gọi riêng lẻ."""
+    try:
+        import asyncio
+        from playwright.async_api import async_playwright
+
+        async def _run():
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(headless=True)
+                try:
+                    async def fetch(url):
+                        if not url:
+                            return ""
+                        try:
+                            page = await browser.new_page(viewport={"width": 1280, "height": 900})
+                            await page.goto(url, wait_until="networkidle", timeout=30000)
+                            await page.wait_for_timeout(2000)
+                            txt = await page.inner_text("body")
+                            await page.close()
+                            return txt
+                        except Exception:
+                            return ""
+                    return await asyncio.gather(*[fetch(u) for u in urls])
+                finally:
+                    await browser.close()
+
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    return list(pool.submit(asyncio.run, _run()).result(timeout=60))
+            else:
+                return list(loop.run_until_complete(_run()))
+        except RuntimeError:
+            return list(asyncio.run(_run()))
+    except Exception:
+        return [""] * len(urls)
+
+def _scrape(url: str) -> str:
+    """Scrape URL. Thử HTTP trước, nếu không lấy được data (JS-only, 403, empty...)
+    thì tự động fallback sang Playwright headless. Trả "" nếu cả hai đều fail."""
+    if not url: return ""
+    # Bước 1: HTTP scrape (nhanh ~1-2s)
+    try:
+        r = requests.get(url, timeout=15, verify=False)
         soup = BeautifulSoup(r.text, "html.parser")
         for t in soup(["script","style","nav","footer","header"]): t.decompose()
         txt = soup.get_text(separator="\n", strip=True)
-        return txt if len(txt) > 100 else f"[Rỗng: {url}]"
-    except Exception as e:
-        return f"[Lỗi: {e}]"
+        if len(txt) > 100:
+            return txt
+    except Exception:
+        pass
+    # Bước 2: Playwright fallback
+    txt = _scrape_playwright(url)
+    return txt if len(txt) > 100 else ""
+
+def _scrape_parallel(urls: dict) -> dict:
+    """Scrape nhiều URL song song. urls = {key: url}. Trả {key: text}."""
+    keys = list(urls.keys())
+    url_list = [urls[k] for k in keys]
+
+    # Bước 1: HTTP scrape song song
+    import concurrent.futures
+    results = {}
+    need_playwright = []
+
+    def http_scrape(key_url):
+        key, url = key_url
+        if not url:
+            return key, ""
+        try:
+            r = requests.get(url, timeout=15, verify=False)
+            soup = BeautifulSoup(r.text, "html.parser")
+            for t in soup(["script","style","nav","footer","header"]): t.decompose()
+            txt = soup.get_text(separator="\n", strip=True)
+            return key, txt if len(txt) > 100 else None  # None = cần Playwright
+        except Exception:
+            return key, None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        for key, result in pool.map(http_scrape, [(k, urls[k]) for k in keys]):
+            results[key] = result
+
+    # Bước 2: Playwright cho các URL HTTP thất bại — song song trong 1 browser
+    pw_keys = [k for k in keys if results[k] is None]
+    pw_urls = [urls[k] for k in pw_keys]
+    if pw_keys:
+        pw_results = _scrape_many_playwright(pw_urls)
+        for k, txt in zip(pw_keys, pw_results):
+            results[k] = txt if len(txt) > 100 else ""
+
+    # Đảm bảo không có None
+    return {k: (results[k] or "") for k in keys}
+
+
+
+
+def _extract_citation_value(line: str) -> str:
+    """Lấy phần nội dung trong '...' của một dòng citation."""
+    m = re.search(r"→\s*\[[^\]]+\]\s*'([^']+)'", line)
+    if m: return m.group(1).strip()
+    m = re.search(r'→\s*\[[^\]]+\]\s*"([^"]+)"', line)
+    if m: return m.group(1).strip()
+    m = re.search(r"→\s*\[[^\]]+\]\s*(.+)", line)
+    if m: return m.group(1).strip()
+    return ""
+
+def _clean_citations(text: str) -> str:
+    """Gộp nội dung citation →[Nguồn] '...' vào dòng bullet chính, không xóa trắng."""
+    if not text or not isinstance(text, str):
+        return text
+    lines = text.split("\n")
+    result = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+
+        # Dòng citation độc lập → gộp vào dòng main trước đó
+        if stripped.startswith("→[") or stripped.startswith("→ ["):
+            val = _extract_citation_value(stripped)
+            if val and result:
+                last = result[-1].rstrip(".").rstrip(";")
+                sep = " — " if (" — " not in last and " —" not in last) else "; "
+                result[-1] = last + sep + val
+            i += 1
+            continue
+
+        # Inline citation trong câu → bóc nội dung gộp vào
+        if "→[" in line or "→ [" in line:
+            vals = re.findall(r"→\s*\[[^\]]+\]\s*'([^']+)'", line)
+            if not vals:
+                vals = re.findall(r'→\s*\[[^\]]+\]\s*"([^"]+)"', line)
+            # Xóa phần →[...] khỏi dòng
+            clean = re.sub(r"→\s*\[[^\]]+\]\s*'[^']*'", "", line)
+            clean = re.sub(r'→\s*\[[^\]]+\]\s*"[^"]*"', "", clean)
+            clean = re.sub(r"→\s*\[[^\]]+\]", "", clean)
+            clean = clean.strip().rstrip(";,").strip()
+            if vals:
+                suffix = "; ".join(v.strip() for v in vals if v.strip())
+                if clean:
+                    sep = " — " if (" — " not in clean) else "; "
+                    clean = clean + sep + suffix
+                else:
+                    clean = suffix
+            if clean:
+                result.append(clean)
+            i += 1
+            continue
+
+        if stripped:
+            result.append(line)
+        i += 1
+    # Xóa pattern "– [Level]" hoặc "– [Thành thạo/Advanced/Intermediate/...]" còn sót
+    cleaned = []
+    for line in result:
+        line = re.sub(r'\s*[–-]\s*\[(Advanced|Intermediate|Basic|Thành thạo|Trung cấp|Cơ bản|Nâng cao|Proficient|Beginner|Expert|Senior|Junior)[^\]]*\]', '', line)
+        cleaned.append(line)
+    return "\n".join(cleaned)
+
+def _add_spacing(text: str) -> str:
+    """Thêm blank line giữa các mục bullet ●/• để dễ đọc hơn."""
+    if not text:
+        return text
+    lines = text.split("\n")
+    result = []
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        # Nếu dòng hiện tại là bullet mới và dòng trước không phải blank → thêm blank line
+        if stripped and (stripped.startswith("●") or stripped.startswith("•")) and result and result[-1] != "":
+            result.append("")
+        result.append(line)
+    return "\n".join(result)
+
+def _clean_data(data: dict) -> dict:
+    """Xóa citation + thêm spacing cho tất cả các text field trong response."""
+    text_fields = [
+        "strength_tech_skills", "strength_exceeding",
+        "gap_missing_skills", "gap_risks",
+        "best_at_core", "best_at_2as_ops", "best_at_2as_ready", "best_at_global",
+    ]
+    for field in text_fields:
+        if field in data and isinstance(data[field], str):
+            data[field] = _add_spacing(_clean_citations(data[field]))
+    return data
 
 # ── Schema prompt ─────────────────────────────────────────────────────────────
 _SYSTEM = """Bạn là AI Agent đánh giá ứng viên cho CT Group (NoAI-NoHire).
+
+⚠️ QUY TẮC VIẾT VĂN PHONG BẮT BUỘC (ưu tiên cao nhất):
+TUYỆT ĐỐI KHÔNG dùng format citation kiểu "→[CV] '...'" hay "→[AI Test Câu X] '...'" hay "→[Nguồn] '...'" trong bất kỳ phần phân tích nào.
+Thay vào đó: viết văn xuôi tiếng Việt tự nhiên, tổng hợp thông tin từ tất cả nguồn vào một câu/đoạn mạch lạc.
+VÍ DỤ SAI (không được viết thế này):
+  "• Python – Thành thạo →[CV] 'Built platform' →[AI Test Câu 4] 'Soạn tài liệu'"
+VÍ DỤ ĐÚNG (viết như thế này):
+  "• Python ở mức thành thạo — ứng viên đã xây dựng và vận hành nền tảng thương mại điện tử công nghiệp, phỏng vấn hội đồng chuyên môn cho 4/5 điểm kỹ năng áp dụng công nghệ thực tế."
+
 Áp dụng quy tắc xuất báo cáo gồm 2 phần BẮT BUỘC:
 
 Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
@@ -119,61 +334,99 @@ Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
 
 Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
 
-QUY TẮC EVIDENCE BẮT BUỘC (áp dụng cho TOÀN BỘ Phần II):
-Mỗi nhận xét PHẢI kèm evidence theo format: "→ [NGUỒN] \"trích dẫn nguyên văn hoặc mô tả chi tiết\""
-Nguồn hợp lệ: [CV], [AI Test Câu X], [5G Câu Y], [Survey], [JD].
-VÍ DỤ ĐÚNG: "✓✓ Python/FastAPI: thành thạo mức advanced → [CV] '3 năm xây hệ thống microservice với FastAPI, deploy production 50k req/day' → [AI Test Câu 5] 'ứng viên dùng prompt chaining để tự động hoá pipeline ETL'"
-VÍ DỤ SAI (không chấp nhận): "Ứng viên có kỹ năng tốt về Python" — quá chung chung, không có evidence.
-KHÔNG được tự bịa evidence. Nếu không có dữ liệu, ghi rõ "[Không có thông tin trong bài test/CV/Survey]".
-Mỗi trường tối thiểu 4–6 bullet, mỗi bullet 1–3 câu có evidence cụ thể. Viết bằng tiếng Việt.
+📋 HƯỚNG DẪN ĐỌC DỮ LIỆU PHỎNG VẤN (BẢNG DỮ LIỆU ỨNG VIÊN / Survey):
+Dữ liệu Survey thường là "BẢNG DỮ LIỆU ỨNG VIÊN" từ hệ thống HR, gồm nhiều vòng phỏng vấn:
+  - Vòng 1 (Sơ loại/HR): điểm từng tiêu chí, nhận xét ban đầu
+  - Vòng 2 (Hội đồng chuyên môn): điểm 1–5 theo 21 tiêu chí năng lực (giao tiếp, ra quyết định, tư duy logic, văn hóa tốc độ...)
+  - Vòng 3 (BOD): đánh giá tổng quan, điểm nghẽn, lý do trao cơ hội, kế hoạch KPI thử việc, kết luận cuối
+KHI CÓ DỮ LIỆU SURVEY, BẮT BUỘC:
+  - Trích điểm cụ thể từng vòng (ví dụ: "Vòng 2: Tiêu chí 13 – Văn hóa tốc độ: 5/5")
+  - Trích nguyên văn nhận xét của phỏng vấn viên (không diễn giải lại)
+  - Nêu kết luận từng vòng (Qua vòng / Không qua) và lý do BOD
+  - Đối chiếu chéo: điểm từng vòng Survey ↔ điểm AI Test ↔ CV để tìm mâu thuẫn hoặc xác nhận chéo
+Nguồn evidence từ Survey: dùng format "[Survey Vòng X] '...(trích nguyên văn nhận xét hoặc điểm tiêu chí)...'"
+
+QUY TẮC VIẾT PHÂN TÍCH (áp dụng cho TOÀN BỘ Phần II):
+Viết bằng tiếng Việt, văn xuôi tự nhiên, mạch lạc — KHÔNG dùng format citation cứng nhắc như "→[CV] '...'" hay "→[Nguồn] '...'".
+Thay vào đó: tổng hợp thông tin từ tất cả nguồn (CV, 5G, Survey, JD) rồi viết thành đoạn văn hoặc bullet point tự nhiên.
+
+ĐỊNH DẠNG MARKDOWN BẮT BUỘC:
+- Dùng **bold** để nhấn mạnh kỹ năng quan trọng, điểm số nổi bật, kết luận chính
+- Dùng xuống dòng và bullet • để phân tách rõ từng ý
+- Mỗi bullet point phải đủ dài (2–5 câu), không viết quá ngắn kiểu liệt kê
+- Dùng emoji tiết kiệm để đánh dấu mức độ: ✅ tốt, ⚠️ cần cải thiện, ❌ thiếu hụt nghiêm trọng
+
+VÍ DỤ ĐÚNG:
+"• **Python** ở mức nâng cao — ứng viên đã xây dựng và vận hành nền tảng thương mại điện tử công nghiệp hơn 3 năm, thể hiện qua dự án recruitment portal xử lý hàng nghìn đơn ứng tuyển mỗi ngày. Hội đồng chuyên môn Vòng 2 đánh giá **4/5** tiêu chí áp dụng công nghệ thực tế — cao hơn mức trung bình của pool ứng viên cùng vị trí."
+VÍ DỤ SAI (quá ngắn): "• Python – ứng viên có kinh nghiệm Python."
+
+KHÔNG được tự bịa thông tin không có trong dữ liệu. Nếu không có dữ liệu, bỏ qua hoặc ghi "Không có thông tin".
+Mỗi trường tối thiểu 5–8 bullet, mỗi bullet 3–5 câu phân tích sâu. KHÔNG rút gọn. Viết càng chi tiết càng tốt.
 
 1. strengths (ĐIỂM MẠNH) — Đối chiếu chéo: CV ↔ JD ↔ điểm test ↔ Survey:
 
   strength_tech_skills: Kỹ năng công nghệ & năng lực chuyên môn nổi trội. Phân tích theo 3 tầng:
-    [A] NĂNG LỰC KỸ THUẬT — Với TỪNG tool/tech/platform, nêu: tên công nghệ + mức độ thành thạo + evidence từ ÍT NHẤT 2 nguồn khác nhau (CV xác nhận kinh nghiệm, test chứng minh hiểu sâu). Format: "• [Tool/Tech] – [mức độ] → [CV] '...' → [AI Test Câu X hoặc 5G Câu Y] '...'"
-    [B] KỸ NĂNG MỀM & TƯ DUY — Trích dẫn ÍT NHẤT 2 câu trả lời nguyên văn từ 5G hoặc Survey thể hiện tư duy phân tích, cách xử lý tình huống, giao tiếp. Format: "• [Kỹ năng] → [5G Câu Y] '...(trích nguyên văn đủ 1–2 câu của ứng viên)...'"
-    [C] PHÙ HỢP JD — Liệt kê từng yêu cầu cốt lõi trong JD, đánh dấu ✓✓/✓/~ kèm evidence. Format: "• [Yêu cầu JD: ...] ✓✓ → [CV] '...' → [Test] '...'"
+  ⛔ CẤM TUYỆT ĐỐI: strength_tech_skills KHÔNG được dùng [AI Test Câu X] làm evidence.
+  VÍ DỤ SAI: "• [Python] → [AI Test Câu 4] '...'" — SAI, AI Test không được phép ở đây.
+  NGUỒN DUY NHẤT được phép: [CV], [JD], [5G Câu Y], [Survey Vòng X].
+    [A] NĂNG LỰC KỸ THUẬT — Với TỪNG tool/tech/platform, nêu: tên công nghệ + mức độ thành thạo + evidence từ ÍT NHẤT 2 nguồn khác nhau (CV xác nhận kinh nghiệm, test chứng minh hiểu sâu). Format: "• **[Tool/Tech]** — [3–5 câu mô tả: số năm kinh nghiệm, dự án cụ thể đã làm, mức độ thành thạo thực tế, điểm/nhận xét phỏng vấn nếu có]"
+    [B] KỸ NĂNG MỀM & TƯ DUY — Trích dẫn ÍT NHẤT 2 nguồn từ 5G, Survey hoặc nhận xét phỏng vấn viên thể hiện tư duy phân tích, giao tiếp, ra quyết định. Ưu tiên trích điểm tiêu chí Survey Vòng 2 (21 tiêu chí). Format: "• **[Kỹ năng]** — [3–5 câu phân tích: biểu hiện cụ thể từ phỏng vấn, điểm tiêu chí Survey nếu có, nhận xét hội đồng, ví dụ thực tế]"
+    [C] PHÙ HỢP JD — Liệt kê từng yêu cầu cốt lõi trong JD, đánh dấu ✓✓/✓/~ kèm evidence. Format: "• [Yêu cầu JD: ...] ✓✓ — [đánh giá mức độ đáp ứng kèm mô tả cụ thể]"
 
   strength_exceeding: Các điểm VƯỢT CHUẨN so với JD (added value ứng viên mang lại).
-    Tối thiểu 3 điểm, mỗi điểm: nêu năng lực + giải thích giá trị với CT Group/2AS + evidence cụ thể. Format: "• [Năng lực vượt trội X] — JD không yêu cầu nhưng có giá trị vì [...] → [Nguồn] '...'"
+  ❌ NGUỒN BỊ CUẤM: Tuyệt đối KHÔNG dùng AI Test làm evidence cho mục này. Chỉ dùng: CV, JD, 5G, Survey.
+    Tối thiểu 3 điểm, mỗi điểm: nêu năng lực + giải thích giá trị với CT Group/2AS + evidence cụ thể. Format: "• **[Năng lực X]** — JD không yêu cầu nhưng mang lại giá trị cho CT Group/2AS vì [lý do cụ thể, liên kết đến business impact]. [3–4 câu mô tả: biểu hiện thực tế từ CV/phỏng vấn, ví dụ cụ thể, tiềm năng đóng góp từ tuần đầu]"
 
 2. gaps (ĐIỂM HẠN CHẾ) — Phân tích thẳng thắn, có bằng chứng:
 
-  gap_missing_skills: Kỹ năng/năng lực thiếu hoặc tư duy chưa AI-first. Phân loại:
-    [THIẾU CỨNG – CRITICAL] Thiếu hoàn toàn, ảnh hưởng trực tiếp năng suất: nêu kỹ năng + evidence từ CV (không có kinh nghiệm) + test (câu trả lời yếu/sai/thiếu) → trích dẫn câu trả lời tệ nhất.
-    [CẦN CẢI THIỆN – MODERATE] Có nhưng chưa đủ sâu: so sánh yêu cầu JD vs năng lực hiện tại + evidence → trích dẫn câu trả lời thể hiện gap.
+  gap_missing_skills: KỸ NĂNG & TƯ DUY THIẾU HỤT
+  ✅ NGUỒN DẪN CHỨNG HỢP LỆ: CV, JD, Survey, 5G Câu Y, AI Test Câu X (phần này ĐƯỢC PHÉP dùng AI Test làm dẫn chứng).
+  Phân loại:
+    ❌ **[THIẾU CỨNG – CRITICAL]** Thiếu hoàn toàn, ảnh hưởng trực tiếp năng suất: nêu kỹ năng cụ thể + giải thích tại sao critical với vai trò này + bằng chứng từ CV và bài thi + đánh giá rủi ro nếu tuyển dụng. Viết ít nhất 3–4 câu.
+    ⚠️ **[CẦN CẢI THIỆN – MODERATE]** Có nhưng chưa đủ sâu: so sánh yêu cầu JD vs năng lực hiện tại cụ thể, mô tả biểu hiện thiếu hụt từ bài thi hoặc phỏng vấn, đề xuất timeline cải thiện. Viết ít nhất 3–4 câu.
     [TƯ DUY AI-FIRST – MINOR/MODERATE] Trích dẫn ÍT NHẤT 1 câu trả lời cụ thể từ AI Test chứng minh ứng viên chỉ surface-level: "[AI Test Câu X] '...(nguyên văn)...' — Nhận xét: câu này cho thấy ứng viên chưa hiểu sâu về [...] vì [...]"
 
-  gap_risks: Rủi ro vận hành & bảo mật — MỖI rủi ro phải kèm evidence từ bài làm:
-    • Rủi ro bảo mật: [có/không] câu trả lời nào tiết lộ thông tin nhạy cảm? → [Nguồn] '...'
-    • Rủi ro hiệu suất: dựa trên điểm AI Test và 5G, ứng viên có cần support nhiều không? → evidence cụ thể
-    • Rủi ro văn hóa AI: dấu hiệu e ngại/từ chối AI từ bài làm → [AI Test Câu X] '...'
+  gap_risks: 🛡️ RỦI RO VẬN HÀNH & BẢO MẬT
+  ✅ NGUỒN DẪN CHỨNG HỢP LỆ: CV, Survey, 5G, AI Test Câu X (phần này ĐƯỢC PHÉP dùng AI Test làm dẫn chứng).
+  MỖI rủi ro phải kèm evidence từ bài làm:
+    • Rủi ro bảo mật: đánh giá xem có dấu hiệu tiết lộ thông tin nhạy cảm không, mô tả cụ thể.
+    • Rủi ro hiệu suất: đánh giá mức độ cần hỗ trợ dựa trên kết quả bài thi và phỏng vấn, nêu cụ thể điểm yếu.
+    • Rủi ro văn hóa AI: đánh giá thái độ với AI từ bài thi AI Test, nêu dấu hiệu cụ thể nếu có.
     • Rủi ro reliability: câu trả lời mâu thuẫn hoặc thiếu nhất quán? → so sánh [Nguồn A] '...' với [Nguồn B] '...'
 
 3. best_at (NĂNG LỰC NỔI BẬT NHẤT) — Tổng hợp & định vị:
 
-  best_at_core: Trả lời thẳng: "Ứng viên này BEST AT [X]" — X phải là 1 câu súc tích, gắn với JD.
+  best_at_core: Trả lời thẳng: "Ứng viên này BEST AT [X]" — X là 1 câu rõ ràng, đầy đủ, gắn với JD.
+  ⛔ CẤM TUYỆT ĐỐI: best_at_core KHÔNG được dùng [AI Test Câu X] làm evidence.
+  VÍ DỤ SAI: "• [Tư duy AI First] → [AI Test Câu 8] '...'" — SAI, AI Test không được phép ở đây.
+  NGUỒN DUY NHẤT được phép: [CV], [JD], [5G Câu X], [Survey Vòng X].
     Sau đó liệt kê top 3 năng lực core có thể đóng góp ngay từ tuần đầu, mỗi năng lực kèm:
     - Evidence từ CV (kinh nghiệm thực tế đã làm)
-    - Evidence từ test (chứng minh hiểu sâu, không chỉ nói suông)
-    Format: "• [Năng lực] → [CV] '...' → [AI Test/5G Câu X] '...'"
+    - Evidence từ 5G hoặc Survey (chứng minh hiểu sâu, không chỉ nói suông)
+    Format: "• **[Năng lực]** — [4–6 câu phân tích sâu: mô tả năng lực cụ thể, kinh nghiệm thực tế từ CV, kết quả phỏng vấn/Survey, impact tiềm năng trong tuần đầu tại CT Group]"
 
-  best_at_2as_ops: Năng lực vận hành 2AS tools. Trả lời 3 câu hỏi có evidence:
-    (1) Đã dùng AI tool nào? → [CV/Survey] '...' — nêu rõ tên tool, cách dùng
-    (2) Mức hands-on: chỉ prompt hay config/orchestrate? → [AI Test Câu X] '...(nguyên văn)...' — phân tích sâu câu trả lời này
-    (3) Tiềm năng 30–60 ngày: dựa trên điểm Prompt Engineering + AI Growth Plan → trích dẫn
+  best_at_2as_ops: NĂNG LỰC VẬN HÀNH AI / 2AS
+  ✅ NGUỒN DẪN CHỨNG HỢP LỆ: CV, Survey, AI Test Câu X (phần này ĐƯỢC PHÉP dùng AI Test làm dẫn chứng).
+  Trả lời 3 câu hỏi có evidence:
+    **(1) AI Tools đang dùng:** Liệt kê từng tool theo format "**[Tên tool]** — [cách dùng cụ thể trong công việc hàng ngày, frequency, use case]". Mỗi tool ít nhất 2 câu.
+    **(2) Mức hands-on:** Phân tích chi tiết mức độ: chỉ prompt cơ bản / custom prompt / config workflow / orchestrate multi-agent? Dẫn chứng cụ thể từ bài thi. Ít nhất 3 câu.
+    (3) Tiềm năng 30–60 ngày: dựa trên điểm AI Test Câu 5 (Prompt Engineering) + Câu 10 (AI Growth Plan) → trích dẫn
     Kết luận: Sơ cấp / Trung cấp / Nâng cao — giải thích tại sao
 
-  best_at_2as_ready: Mức độ sẵn sàng giao việc cho AI. Phân loại [AI-Native/Willing/Hesitant/Resistant]:
-    - Từ AI Test (Câu AI Mindset & AI Teamwork): trích dẫn nguyên văn câu trả lời + phân tích thái độ
-    - Từ Survey: ứng viên nói gì về AI trong phỏng vấn? → '[Survey] ...'
-    - Từ CV: có dự án AI thực chiến nào chứng minh không chỉ nói? → '[CV] ...'
-    Kết luận phân loại kèm lý do cụ thể dựa trên 3 nguồn trên
+  best_at_2as_ready: MỨC ĐỘ AI-READINESS. Phân loại [AI-Native/Willing/Hesitant/Resistant]:
+  ✅ NGUỒN DẪN CHỨNG HỢP LỆ: CV, Survey, AI Test Câu X (phần này ĐƯỢC PHÉP dùng AI Test làm dẫn chứng).
+    - AI Test Câu 8 (AI Mindset): trích dẫn nguyên văn + phân tích thái độ
+    - AI Test Câu 6 (AI x Teamwork): trích dẫn nguyên văn + phân tích mức độ ứng dụng nhóm
+    - Từ Survey Vòng 3 (BOD): nhận xét về AI mindset, tư duy tự động hóa → '[Survey Vòng 3] ...'
+    - Từ Survey Vòng 2: điểm tiêu chí liên quan AI/công nghệ → '[Survey Vòng 2] Tiêu chí X: Y/5'
+    - Từ CV: có dự án AI thực chiến nào không? → '[CV] ...'
+    Kết luận phân loại kèm lý do cụ thể dựa trên các nguồn trên
 
   best_at_global: Ngoại ngữ & thực chiến quốc tế:
-    (1) Trình độ thực tế: có câu trả lời nào bằng tiếng Anh không? Chất lượng thế nào? → [AI Test/5G] trích dẫn nếu có; CV khai trình độ gì → [CV] '...'
-    (2) Kinh nghiệm quốc tế: → [CV] '...' (dự án, công ty, stakeholder nước ngoài)
-    (3) Multicultural readiness: → [Survey] '...' hoặc [CV] '...'
+  ❌ NGUỒN BỊ CUẤM: Tuyệt đối KHÔNG dùng AI Test làm evidence cho mục này. Chỉ dùng: CV, 5G, Survey.
+    (1) Trình độ thực tế: có câu trả lời nào bằng tiếng Anh không? Chất lượng thế nào? → [đánh giá trình độ thực tế dựa trên CV và bài thi]
+    (2) Kinh nghiệm quốc tế: → [mô tả kinh nghiệm quốc tế nếu có]
+    (3) Multicultural readiness: → [đánh giá dựa trên thông tin có sẵn]
 
 
 CHỈ trả JSON theo schema:
@@ -297,11 +550,9 @@ def generate_candidate_report(
                 raw = f.stream.read()
                 cv_text = _pdf_bytes(raw) if (f.filename or "").lower().endswith(".pdf") else _docx_bytes(raw)
 
-        # Scrape links
-        ai_txt = _scrape(ai_test_url)
-        g5_txt = _scrape(g5_test_url)
-        eq_txt = _scrape(eq_test_url)
-        sv_txt = _scrape(survey_url) if survey_url else "[Chưa có]"
+        # Scrape links — nếu không đọc được thì trả rỗng, AI bỏ qua section đó
+        _scraped = _scrape_parallel({"ai": ai_test_url, "g5": g5_test_url, "eq": eq_test_url, "sv": survey_url})
+        ai_txt = _scraped["ai"]; g5_txt = _scraped["g5"]; eq_txt = _scraped["eq"]; sv_txt = _scraped["sv"]
 
         # Scoring guides
         ai_guide = _read_cached(_AI_SCORING_PDF, api_use_cache)
@@ -317,7 +568,7 @@ def generate_candidate_report(
 ### TEST AI (link): {ai_txt[:10000]}
 ### TEST 5G (link): {g5_txt[:10000]}
 ### EQ/IQ (link): {eq_txt[:5000]}
-### PHỎNG VẤN: {sv_txt[:5000]}
+### PHỎNG VẤN / BẢNG DỮ LIỆU ỨNG VIÊN (Survey): {sv_txt[:20000]}
 Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
 Trả về JSON hợp lệ, điền đủ mọi trường."""
 
@@ -340,9 +591,9 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
                 messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
                 response_format={"type": "json_object"},
                 temperature=0.2,
-                max_tokens=4000,
+                max_tokens=8000,
             )
-        data = json.loads(resp.choices[0].message.content)
+        data = _clean_data(json.loads(resp.choices[0].message.content))
         usage = resp.usage
         prompt_tokens     = usage.prompt_tokens if usage else 0
         completion_tokens = usage.completion_tokens if usage else 0
@@ -554,11 +805,9 @@ def generate_candidate_only_report(
                 raw = f.stream.read()
                 cv_text = _pdf_bytes(raw) if (f.filename or "").lower().endswith(".pdf") else _docx_bytes(raw)
 
-        # Scrape links
-        ai_txt = _scrape(ai_test_url)
-        g5_txt = _scrape(g5_test_url)
-        eq_txt = _scrape(eq_test_url)
-        sv_txt = _scrape(survey_url) if survey_url else "[Chưa có]"
+        # Scrape links — nếu không đọc được thì trả rỗng, AI bỏ qua section đó
+        _scraped = _scrape_parallel({"ai": ai_test_url, "g5": g5_test_url, "eq": eq_test_url, "sv": survey_url})
+        ai_txt = _scraped["ai"]; g5_txt = _scraped["g5"]; eq_txt = _scraped["eq"]; sv_txt = _scraped["sv"]
 
         # Scoring guides
         ai_guide = _read_cached(_AI_SCORING_PDF, api_use_cache)
@@ -574,7 +823,7 @@ def generate_candidate_only_report(
 ### TEST AI (link): {ai_txt[:10000]}
 ### TEST 5G (link): {g5_txt[:10000]}
 ### EQ/IQ (link): {eq_txt[:5000]}
-### PHỎNG VẤN: {sv_txt[:5000]}
+### PHỎNG VẤN / BẢNG DỮ LIỆU ỨNG VIÊN (Survey): {sv_txt[:20000]}
 Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
 Trả về JSON hợp lệ, điền đủ mọi trường."""
 
@@ -597,9 +846,9 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
                 messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
                 response_format={"type": "json_object"},
                 temperature=0.2,
-                max_tokens=4000,
+                max_tokens=8000,
             )
-        data = json.loads(resp.choices[0].message.content)
+        data = _clean_data(json.loads(resp.choices[0].message.content))
         usage = resp.usage
         prompt_tokens     = usage.prompt_tokens if usage else 0
         completion_tokens = usage.completion_tokens if usage else 0
@@ -754,10 +1003,8 @@ def score_tests(
             raw = f.stream.read()
             cv_text = _pdf_bytes(raw) if (f.filename or "").lower().endswith(".pdf") else _docx_bytes(raw)
 
-    ai_txt = _scrape(ai_test_url)
-    g5_txt = _scrape(g5_test_url)
-    eq_txt = _scrape(eq_test_url)
-    sv_txt = _scrape(survey_url) if survey_url else "[Chưa có]"
+    _scraped = _scrape_parallel({"ai": ai_test_url, "g5": g5_test_url, "eq": eq_test_url, "sv": survey_url})
+    ai_txt = _scraped["ai"]; g5_txt = _scraped["g5"]; eq_txt = _scraped["eq"]; sv_txt = _scraped["sv"]
 
     ai_guide = _read_cached(_AI_SCORING_PDF, api_use_cache)
     swat_prd = _read_cached(_SWAT_PRD_DOCX, api_use_cache)
@@ -771,7 +1018,7 @@ def score_tests(
 ### TEST AI (link): {ai_txt[:10000]}
 ### TEST 5G (link): {g5_txt[:10000]}
 ### EQ/IQ (link): {eq_txt[:5000]}
-### PHỎNG VẤN: {sv_txt[:5000]}
+### PHỎNG VẤN / BẢNG DỮ LIỆU ỨNG VIÊN (Survey): {sv_txt[:20000]}
 Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
 Trả về JSON hợp lệ, điền đủ mọi trường."""
 
@@ -790,7 +1037,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
             messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
             response_format={"type": "json_object"},
             temperature=0.2,
-            max_tokens=4000,
+            max_tokens=8000,
         )
     data = json.loads(resp.choices[0].message.content)
     _usage = resp.usage
