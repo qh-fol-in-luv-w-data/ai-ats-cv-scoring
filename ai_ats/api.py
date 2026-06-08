@@ -327,7 +327,7 @@ Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
 - Phân loại Ứng viên (ai_test_label): Dựa trên kết quả, phân loại thành [AI-Ready] hoặc [Non-AI].
 - Chấm điểm SWAT Elite (Thang 10) -> swat_total.
 - Kết quả SWAT Elite (swat_label): Đánh giá [Swat-Elite] (nếu swat_total >= 6.0) hoặc [KHÔNG ĐẠT] (nếu swat_total < 6.0) (chấm nới điểm để dễ pass).
-- Chấm điểm 5G Test (Thang 100) -> g5_total. CÁCH CHẤM 5G: Bài 5G gồm Phần A (trắc nghiệm 15 câu, mỗi câu 2đ, tổng 30đ) và Phần B (tự luận 15 câu, tổng 70đ). PHẢI điền g5_table đủ 5 hàng (G1–G5), mỗi hàng chấm trên thang diem_toi_da=20.0 (bao gồm tổng điểm trắc nghiệm và tự luận thuộc tiêu chí đó), tổng g5_total = tổng điểm 5 tiêu chí (thang 100). Đối chiếu đáp án từ Rubric 5G để tính điểm chính xác từng tiêu chí. KHÔNG được để nguyên giá trị mặc định 0.
+- Chấm điểm 5G Test (Thang 100) -> g5_total. CÁCH CHẤM 5G (tài liệu 04.06.2026): Phần A = 15 câu TN (30đ). Phần B = 15 câu TL (70đ). PHẢI điền g5_table đủ 9 hàng với diem_toi_da ĐÚNG như sau: G1=7đ (TN câu1:2đ + TL câu16:5đ), G2=16đ (TN câu2-4:6đ + TL câu17-18:10đ), G3=12đ (TN câu5:2đ + TL câu19-20:10đ), G4=26đ (TN câu6-13:16đ + TL câu21-22:10đ), G5=14đ (TN câu14-15:4đ + TL câu23-24:10đ), Thích nghi=5đ (TL câu25), Đàm phán=5đ (TL câu26), Quản lý thời gian=10đ (TL câu27:3đ+câu28:3đ+câu29:4đ), Đánh giá level=5đ (TL câu30). Tổng g5_total = 100đ. Đối chiếu đáp án từ Rubric 5G để tính điểm chính xác. KHÔNG để nguyên giá trị mặc định 0.
 - LƯU Ý CHỐNG BỊA ĐẶT (Hallucination): Điểm AI Test PHẢI được chấm hoàn toàn dựa trên nội dung TEST AI. Điểm SWAT và 5G PHẢI dựa hoàn toàn trên nội dung TEST 5G. Nếu nội dung test bị lỗi, rỗng hoặc thiếu thông tin, TUYỆT ĐỐI KHÔNG tự bịa điểm (phải cho 0 điểm).
 - LỌC NHIỄU TÀI LIỆU HƯỚNG DẪN: Trong các tài liệu Hướng dẫn chấm điểm (Rubric) có thể có nhiều thông tin dư thừa. Bạn PHẢI BỎ QUA các phần râu ria và CHỈ TẬP TRUNG vào đúng "khung tiêu chuẩn chấm điểm" (barem/rubric) cốt lõi để đối chiếu với bài làm của ứng viên.
 - QUY TẮC TÀN KHỐC ĐỂ RA QUYẾT ĐỊNH (decision): Vì công ty áp dụng "No AI - No Hire", nếu ai_test_label là "Non-AI" HOẶC g5_total < 60.0 HOẶC swat_total < 6.0, thì BẮT BUỘC Quyết định (decision) = "KHÔNG ĐẠT" (Cúc luôn!). Chỉ được đánh giá "ĐẠT" khi tất cả đều qua môn.
@@ -453,11 +453,15 @@ CHỈ trả JSON theo schema:
   ],
   "swat_total":0.0, "swat_label":"ĐẠT",
   "g5_table":[
-    {"tieu_chi":"G1 – Giao tiếp (Communication)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
-    {"tieu_chi":"G2 – Giao lưu/Cọ xát thực tế (Exposure & Interaction)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
-    {"tieu_chi":"G3 – Giám sát (Supervision)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
-    {"tieu_chi":"G4 – Giải quyết vấn đề/Gỡ rối (Problem Solving)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""},
-    {"tieu_chi":"G5 – Giảng dạy/Hướng dẫn (Teaching & Mentoring)","diem_toi_da":20,"diem_cham":0.0,"ly_do":""}
+    {"tieu_chi":"G1 – Giao tiếp (Communication)",                             "diem_toi_da":7,  "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G2 – Giao lưu/Cọ xát thực tế (Exposure & Interaction)",     "diem_toi_da":16, "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G3 – Giám sát (Supervision)",                               "diem_toi_da":12, "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G4 – Giải quyết vấn đề/Gỡ rối (Problem Solving)",          "diem_toi_da":26, "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"G5 – Giảng dạy/Hướng dẫn (Training & Coaching)",           "diem_toi_da":14, "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"Kỹ năng thích nghi (Adaptability)",                         "diem_toi_da":5,  "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"Kỹ năng đàm phán (Negotiation)",                            "diem_toi_da":5,  "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"Kỹ năng quản lý thời gian & ưu tiên (Time Management)",    "diem_toi_da":10, "diem_cham":0.0,"ly_do":""},
+    {"tieu_chi":"Đánh giá level cá nhân (Self-Assessment)",                 "diem_toi_da":5,  "diem_cham":0.0,"ly_do":""}
   ],
   "g5_total": 0.0,
   "strength_tech_skills": "", "strength_exceeding": "",
@@ -1205,7 +1209,16 @@ Quy tắc: label = "Xuất sắc" (90-100) | "Khá" (75-89) | "Cơ bản" (50-74
 _SYSTEM_5G = """Bạn là chuyên gia chấm bài TEST 5G (tiềm năng quản lý) của CT Group.
 Bài 5G gồm 2 phần, TỔNG ĐIỂM THANG 100:
 - Phần A: 15 câu trắc nghiệm = 30 điểm (mỗi câu đúng = 2đ, sai = 0đ). Đáp án đúng lấy từ rubric.
-- Phần B: 15 câu tự luận (câu 16–30) = 70 điểm. Mỗi nhóm tiêu chí (G1-G5) có 3 câu, tổng 14 điểm/nhóm (phân bổ điểm tối đa là 5, 5, 4 cho 3 câu tương ứng).
+- Phần B: 15 câu tự luận (câu 16–30) = 70 điểm. Phân bổ điểm theo tài liệu 04.06.2026:
+  G1 Giao tiếp: câu 16 (5đ).
+  G2 Giao lưu/Cọ xát: câu 17 (5đ) + câu 18 (5đ).
+  G3 Giám sát: câu 19 (5đ) + câu 20 (5đ).
+  G4 Giải quyết vấn đề: câu 21 (5đ) + câu 22 (5đ).
+  G5 Giảng dạy/Hướng dẫn: câu 23 (5đ) + câu 24 (5đ).
+  Kỹ năng thích nghi: câu 25 (5đ).
+  Kỹ năng đàm phán: câu 26 (5đ).
+  Quản lý thời gian & ưu tiên: câu 27 (3đ) + câu 28 (3đ) + câu 29 (4đ).
+  Đánh giá level cá nhân: câu 30 (5đ).
 
 YÊU CẦU OUTPUT:
 1. phan_a: mảng 15 phần tử — từng câu trắc nghiệm: số câu, đáp án ứng viên chọn, đáp án đúng, đúng/sai, điểm (2 hoặc 0)
