@@ -10,7 +10,7 @@
 <body class="bg-slate-50 text-slate-800 font-sans p-8">
     <div class="max-w-4xl mx-auto">
         <h1 class="text-3xl font-bold mb-2 text-indigo-600">AI ATS API Endpoints</h1>
-        <p class="mb-8 text-slate-600">Danh sách các câu lệnh cURL cho toàn bộ 6 endpoints của dự án 2as-ats. Bấm nút Copy để sao chép nhanh.</p>
+        <p class="mb-8 text-slate-600">Danh sách các câu lệnh cURL cho toàn bộ 6 endpoints của dự án 2as-ats theo đúng format chuẩn. Bấm nút Copy để sao chép nhanh.</p>
 
         <div class="space-y-8" id="api-list">
             
@@ -26,12 +26,14 @@
                 </div>
                 <div class="bg-[#2d2d2d] relative group">
                     <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-0" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.generate_candidate_report" \
-  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
-  -F "ai_test_url=https://docs.google.com/forms/.../viewscore" \
-  -F "g5_test_url=https://docs.google.com/forms/.../viewscore" \
-  -F "survey_url=https://docs.google.com/forms/.../viewscore" \
-  -F "cv_file=@/path/to/your/cv.pdf" \
-  -F "api_use_cache=1"</code></pre>
+  --header "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  --form 'cv_file=@/path/to/cv.pdf' \
+  --form 'jd_text="Yêu cầu vị trí Senior Fullstack..."' \
+  --form 'ai_test_url="http://10.6.10.12:8069/survey/print/c5094f3b-..."' \
+  --form 'g5_test_url="http://10.6.10.12:8069/survey/print/df4405cb-..."' \
+  --form 'eq_test_url="https://jobtest.vn/kq-bai-test-abc"' \
+  --form 'survey_url="http://10.6.10.12:8069/survey/result/819/..."' \
+  --form 'api_use_cache="1"'</code></pre>
                 </div>
             </div>
 
@@ -47,10 +49,14 @@
                 </div>
                 <div class="bg-[#2d2d2d] relative group">
                     <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-1" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.generate_candidate_only_report" \
-  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
-  -F "survey_url=https://docs.google.com/forms/.../viewscore" \
-  -F "cv_file=@/path/to/your/cv.pdf" \
-  -F "api_use_cache=1"</code></pre>
+  --header "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  --form 'cv_file=@/path/to/cv.pdf' \
+  --form 'jd_text="Yêu cầu vị trí Senior Fullstack..."' \
+  --form 'ai_test_url="http://10.6.10.12:8069/survey/print/c5094f3b-..."' \
+  --form 'g5_test_url="http://10.6.10.12:8069/survey/print/df4405cb-..."' \
+  --form 'eq_test_url="https://jobtest.vn/kq-bai-test-abc"' \
+  --form 'survey_url="http://10.6.10.12:8069/survey/result/819/..."' \
+  --form 'api_use_cache="1"'</code></pre>
                 </div>
             </div>
 
@@ -66,10 +72,14 @@
                 </div>
                 <div class="bg-[#2d2d2d] relative group">
                     <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-2" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.score_tests" \
-  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
-  -F "ai_test_url=https://docs.google.com/forms/.../viewscore" \
-  -F "survey_url=https://docs.google.com/forms/.../viewscore" \
-  -F "api_use_cache=0"</code></pre>
+  --header "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  --form 'cv_file=@/path/to/cv.pdf' \
+  --form 'jd_text="Yêu cầu vị trí Senior Fullstack..."' \
+  --form 'ai_test_url="http://10.6.10.12:8069/survey/print/c5094f3b-..."' \
+  --form 'g5_test_url="http://10.6.10.12:8069/survey/print/df4405cb-..."' \
+  --form 'eq_test_url="https://jobtest.vn/kq-bai-test-abc"' \
+  --form 'survey_url="http://10.6.10.12:8069/survey/result/819/..."' \
+  --form 'api_use_cache="0"'</code></pre>
                 </div>
             </div>
 
@@ -85,13 +95,10 @@
                 </div>
                 <div class="bg-[#2d2d2d] relative group">
                     <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-3" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.score_single" \
-  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://docs.google.com/forms/.../viewscore",
-    "type": "ai",
-    "api_use_cache": 1
-  }'</code></pre>
+  --header "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  --form 'url="http://10.6.10.12:8069/survey/print/c5094f3b-..."' \
+  --form 'type="ai"' \
+  --form 'api_use_cache="1"'</code></pre>
                 </div>
             </div>
 
@@ -107,9 +114,9 @@
                 </div>
                 <div class="bg-[#2d2d2d] relative group">
                     <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-4" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.job_matcher.match_candidate_jobs" \
-  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
-  -F "cv_file=@/path/to/your/cv.pdf" \
-  -F 'jobs_json=[{"id": 1, "title": "AI Engineer", "jd_text": "Yêu cầu Python..."}]'</code></pre>
+  --header "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  --form 'cv_file=@/path/to/cv.pdf' \
+  --form 'jobs_json="[{\"id\": 1, \"title\": \"AI Engineer\", \"jd_text\": \"Yêu cầu Python...\"}]"'</code></pre>
                 </div>
             </div>
 
@@ -125,7 +132,7 @@
                 </div>
                 <div class="bg-[#2d2d2d] relative group">
                     <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-5" class="language-bash">curl -X GET "https://devapp.ctpai.vn/api/method/ai_ats.api.get_context" \
-  -H "Authorization: token 539cc7c60b48834:451f510c38b665d"</code></pre>
+  --header "Authorization: token 539cc7c60b48834:451f510c38b665d"</code></pre>
                 </div>
             </div>
 
