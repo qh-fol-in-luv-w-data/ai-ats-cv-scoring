@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ATS API Endpoints</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-2 text-indigo-600">AI ATS API Endpoints</h1>
+        <p class="mb-8 text-slate-600">Danh sách các câu lệnh cURL cho toàn bộ 6 endpoints của dự án 2as-ats. Bấm nút Copy để sao chép nhanh.</p>
+
+        <div class="space-y-8" id="api-list">
+            
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">1. ai_ats.api.generate_candidate_report (POST)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Đánh giá toàn diện hồ sơ ứng viên bằng AI từ các nguồn (CV, Bài Test AI, Test 5G, Phỏng vấn) và lưu báo cáo.</p>
+                    </div>
+                    <button onclick="copyToClipboard('cmd-0', this)" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Copy cURL
+                    </button>
+                </div>
+                <div class="bg-[#2d2d2d] relative group">
+                    <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-0" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.generate_candidate_report" \
+  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  -F "ai_test_url=https://docs.google.com/forms/.../viewscore" \
+  -F "g5_test_url=https://docs.google.com/forms/.../viewscore" \
+  -F "survey_url=https://docs.google.com/forms/.../viewscore" \
+  -F "cv_file=@/path/to/your/cv.pdf" \
+  -F "api_use_cache=1"</code></pre>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">2. ai_ats.api.generate_candidate_only_report (POST)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Đánh giá toàn diện hồ sơ (tương tự endpoint số 1, dành cho case riêng biệt).</p>
+                    </div>
+                    <button onclick="copyToClipboard('cmd-1', this)" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Copy cURL
+                    </button>
+                </div>
+                <div class="bg-[#2d2d2d] relative group">
+                    <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-1" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.generate_candidate_only_report" \
+  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  -F "survey_url=https://docs.google.com/forms/.../viewscore" \
+  -F "cv_file=@/path/to/your/cv.pdf" \
+  -F "api_use_cache=1"</code></pre>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">3. ai_ats.api.score_tests (POST)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Chấm điểm bài test, trả ra bảng chi tiết (AI Test / SWAT / 5G) để Review (Không lưu Database).</p>
+                    </div>
+                    <button onclick="copyToClipboard('cmd-2', this)" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Copy cURL
+                    </button>
+                </div>
+                <div class="bg-[#2d2d2d] relative group">
+                    <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-2" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.score_tests" \
+  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  -F "ai_test_url=https://docs.google.com/forms/.../viewscore" \
+  -F "survey_url=https://docs.google.com/forms/.../viewscore" \
+  -F "api_use_cache=0"</code></pre>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">4. ai_ats.api.score_single (POST)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Chấm riêng biệt 1 bài test cụ thể. Tham số type phải là "ai" hoặc "5g".</p>
+                    </div>
+                    <button onclick="copyToClipboard('cmd-3', this)" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Copy cURL
+                    </button>
+                </div>
+                <div class="bg-[#2d2d2d] relative group">
+                    <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-3" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.api.score_single" \
+  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://docs.google.com/forms/.../viewscore",
+    "type": "ai",
+    "api_use_cache": 1
+  }'</code></pre>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">5. ai_ats.job_matcher.match_candidate_jobs (POST)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Phân tích CV và chấm điểm độ phù hợp của ứng viên với một danh sách các công việc.</p>
+                    </div>
+                    <button onclick="copyToClipboard('cmd-4', this)" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Copy cURL
+                    </button>
+                </div>
+                <div class="bg-[#2d2d2d] relative group">
+                    <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-4" class="language-bash">curl -X POST "https://devapp.ctpai.vn/api/method/ai_ats.job_matcher.match_candidate_jobs" \
+  -H "Authorization: token 539cc7c60b48834:451f510c38b665d" \
+  -F "cv_file=@/path/to/your/cv.pdf" \
+  -F 'jobs_json=[{"id": 1, "title": "AI Engineer", "jd_text": "Yêu cầu Python..."}]'</code></pre>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">6. ai_ats.api.get_context (GET)</h2>
+                        <p class="text-sm text-slate-500 mt-1">Entry point cho Frontend khởi tạo Session & CSRF Token.</p>
+                    </div>
+                    <button onclick="copyToClipboard('cmd-5', this)" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Copy cURL
+                    </button>
+                </div>
+                <div class="bg-[#2d2d2d] relative group">
+                    <pre class="m-0 p-6 text-sm overflow-x-auto"><code id="cmd-5" class="language-bash">curl -X GET "https://devapp.ctpai.vn/api/method/ai_ats.api.get_context" \
+  -H "Authorization: token 539cc7c60b48834:451f510c38b665d"</code></pre>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    
+    <script>
+        function copyToClipboard(elementId, btnElement) {
+            const el = document.getElementById(elementId);
+            const text = el.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btnElement.innerText;
+                btnElement.innerText = 'Copied!';
+                btnElement.classList.add('bg-green-50', 'text-green-600');
+                btnElement.classList.remove('bg-indigo-50', 'text-indigo-600');
+                
+                setTimeout(() => {
+                    btnElement.innerText = originalText;
+                    btnElement.classList.remove('bg-green-50', 'text-green-600');
+                    btnElement.classList.add('bg-indigo-50', 'text-indigo-600');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
