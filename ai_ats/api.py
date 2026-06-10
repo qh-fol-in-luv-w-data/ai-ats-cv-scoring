@@ -516,7 +516,7 @@ def generate_candidate_report(
     try:
         # Convert cache flag
         if isinstance(api_use_cache, str):
-            api_use_cache = api_use_cache.lower() in ['true', '1', 't', 'yes']
+            api_use_cache = api_use_cache.strip('"\'').lower() in ['true', '1', 't', 'yes']
         else:
             api_use_cache = bool(api_use_cache)
 
@@ -779,7 +779,7 @@ def generate_candidate_only_report(
     try:
         # Convert cache flag
         if isinstance(api_use_cache, str):
-            api_use_cache = api_use_cache.lower() in ['true', '1', 't', 'yes']
+            api_use_cache = api_use_cache.strip('"\'').lower() in ['true', '1', 't', 'yes']
         else:
             api_use_cache = bool(api_use_cache)
 
