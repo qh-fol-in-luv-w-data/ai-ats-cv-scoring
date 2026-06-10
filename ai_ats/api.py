@@ -220,68 +220,7 @@ def _scrape_parallel(urls: dict) -> dict:
 
 
 
-def _extract_citation_value(line: str) -> str:
-    """Lấy phần nội dung trong '...' của một dòng citation."""
-    m = re.search(r"→\s*\[[^\]]+\]\s*'([^']+)'", line)
-    if m: return m.group(1).strip()
-    m = re.search(r'→\s*\[[^\]]+\]\s*"([^"]+)"', line)
-    if m: return m.group(1).strip()
-    m = re.search(r"→\s*\[[^\]]+\]\s*(.+)", line)
-    if m: return m.group(1).strip()
-    return ""
 
-def _clean_citations(text: str) -> str:
-    """Gộp nội dung citation →[Nguồn] '...' vào dòng bullet chính, không xóa trắng."""
-    if not text or not isinstance(text, str):
-        return text
-    lines = text.split("\n")
-    result = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        stripped = line.strip()
-
-        # Dòng citation độc lập → gộp vào dòng main trước đó
-        if stripped.startswith("→[") or stripped.startswith("→ ["):
-            val = _extract_citation_value(stripped)
-            if val and result:
-                last = result[-1].rstrip(".").rstrip(";")
-                sep = " — " if (" — " not in last and " —" not in last) else "; "
-                result[-1] = last + sep + val
-            i += 1
-            continue
-
-        # Inline citation trong câu → bóc nội dung gộp vào
-        if "→[" in line or "→ [" in line:
-            vals = re.findall(r"→\s*\[[^\]]+\]\s*'([^']+)'", line)
-            if not vals:
-                vals = re.findall(r'→\s*\[[^\]]+\]\s*"([^"]+)"', line)
-            # Xóa phần →[...] khỏi dòng
-            clean = re.sub(r"→\s*\[[^\]]+\]\s*'[^']*'", "", line)
-            clean = re.sub(r'→\s*\[[^\]]+\]\s*"[^"]*"', "", clean)
-            clean = re.sub(r"→\s*\[[^\]]+\]", "", clean)
-            clean = clean.strip().rstrip(";,").strip()
-            if vals:
-                suffix = "; ".join(v.strip() for v in vals if v.strip())
-                if clean:
-                    sep = " — " if (" — " not in clean) else "; "
-                    clean = clean + sep + suffix
-                else:
-                    clean = suffix
-            if clean:
-                result.append(clean)
-            i += 1
-            continue
-
-        if stripped:
-            result.append(line)
-        i += 1
-    # Xóa pattern "– [Level]" hoặc "– [Thành thạo/Advanced/Intermediate/...]" còn sót
-    cleaned = []
-    for line in result:
-        line = re.sub(r'\s*[–-]\s*\[(Advanced|Intermediate|Basic|Thành thạo|Trung cấp|Cơ bản|Nâng cao|Proficient|Beginner|Expert|Senior|Junior)[^\]]*\]', '', line)
-        cleaned.append(line)
-    return "\n".join(cleaned)
 
 def _add_spacing(text: str) -> str:
     """Thêm blank line giữa các mục bullet ●/• để dễ đọc hơn."""
@@ -297,6 +236,44 @@ def _add_spacing(text: str) -> str:
         result.append(line)
     return "\n".join(result)
 
+def format_html(text: str) -> str:
+    """Format markdown text to HTML for the API response."""
+    if not text:
+        return ""
+    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
+    
+    # Tách các bullet dính nhau
+    text = text.replace(" • ", "\n• ").replace(" ● ", "\n● ")
+    
+    lines = text.split('\n')
+    out = []
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        if re.match(r'^\[.+\]$', line):
+            out.append(f"<div style='margin-top: 10px; font-weight: bold; color: #4f46e5;'>{line}</div>")
+            continue
+            
+        if line.startswith('•') or line.startswith('- ') or line.startswith('●'):
+            parts = re.split(r'\s*→\s*', line)
+            bullet = parts[0].strip()
+            bullet = re.sub(r'^[•\-●]\s*', '', bullet)
+            out.append(f"<div style='margin-top: 8px;'>&#8226; {bullet}</div>")
+            for ev in parts[1:]:
+                out.append(f"<div style='margin-left: 20px; color: gray; font-style: italic;'>&rarr; {ev}</div>")
+            continue
+            
+        if line.startswith('→'):
+            out.append(f"<div style='margin-left: 20px; color: gray; font-style: italic;'>&rarr; {line[1:].strip()}</div>")
+            continue
+            
+        out.append(f"<div>{line}</div>")
+        
+    return "\n".join(out)
+
 def _clean_data(data: dict) -> dict:
     """Xóa citation + thêm spacing cho tất cả các text field trong response."""
     text_fields = [
@@ -306,7 +283,7 @@ def _clean_data(data: dict) -> dict:
     ]
     for field in text_fields:
         if field in data and isinstance(data[field], str):
-            data[field] = _add_spacing(_clean_citations(data[field]))
+            data[field] = _add_spacing(data[field])
     return data
 
 # ── Schema prompt ─────────────────────────────────────────────────────────────
@@ -642,34 +619,38 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
 
-        report_text = f"""BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)
-
-Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
-- AI Readiness Index (Chỉ số sẵn sàng AI): {data.get('ai_test_total', 0)}/100
-- Phân loại Ứng viên: [{data.get('ai_test_label', '')}]
-- Điểm SWAT Elite: {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
-
-Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
-
-1. ĐIỂM MẠNH (Strengths):
-- Kỹ năng công nghệ và năng lực chuyên môn nổi trội:
-  {data.get('strength_tech_skills', '')}
-- Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:
-  {data.get('strength_exceeding', '')}
-
-2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):
-- Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:
-  {data.get('gap_missing_skills', '')}
-- Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:
-  {data.get('gap_risks', '')}
-
-3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):
-- Chuyên môn mạnh nhất: {data.get('best_at_core', '')}
-- Năng lực vận hành 2AS: {data.get('best_at_2as_ops', '')}
-- Mức độ sẵn sàng sử dụng 2AS: {data.get('best_at_2as_ready', '')}
-- Ngoại ngữ & Thực chiến: {data.get('best_at_global', '')}
-
-QUYẾT ĐỊNH: {data.get('decision', '')}
+        report_text = f"""<div><strong>BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)</strong></div>
+<br>
+<div><strong>Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)</strong></div>
+<div>- <strong>AI Readiness Index (Chỉ số sẵn sàng AI):</strong> {data.get('ai_test_total', 0)}/100</div>
+<div>- <strong>Phân loại Ứng viên:</strong> [{data.get('ai_test_label', '')}]</div>
+<div>- <strong>Điểm SWAT Elite:</strong> {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])</div>
+<br>
+<div><strong>Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)</strong></div>
+<br>
+<div><strong>1. ĐIỂM MẠNH (Strengths):</strong></div>
+<div>- <strong>Kỹ năng công nghệ và năng lực chuyên môn nổi trội:</strong></div>
+{format_html(data.get('strength_tech_skills', ''))}
+<div>- <strong>Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:</strong></div>
+{format_html(data.get('strength_exceeding', ''))}
+<br>
+<div><strong>2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):</strong></div>
+<div>- <strong>Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:</strong></div>
+{format_html(data.get('gap_missing_skills', ''))}
+<div>- <strong>Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:</strong></div>
+{format_html(data.get('gap_risks', ''))}
+<br>
+<div><strong>3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):</strong></div>
+<div>- <strong>Chuyên môn mạnh nhất:</strong></div>
+{format_html(data.get('best_at_core', ''))}
+<div>- <strong>Năng lực vận hành 2AS:</strong></div>
+{format_html(data.get('best_at_2as_ops', ''))}
+<div>- <strong>Mức độ sẵn sàng sử dụng 2AS:</strong></div>
+{format_html(data.get('best_at_2as_ready', ''))}
+<div>- <strong>Ngoại ngữ & Thực chiến:</strong></div>
+{format_html(data.get('best_at_global', ''))}
+<br>
+<div><strong>QUYẾT ĐỊNH:</strong> {data.get('decision', '')}</div>
 """
         final_resp = {
             # Trường chính — bên thứ 3 chỉ cần report_text
@@ -910,34 +891,38 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
 
-        report_text = f"""BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)
-
-<strong>Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)</strong>
-- <strong>AI Readiness Index (Chỉ số sẵn sàng AI):</strong> {data.get('ai_test_total', 0)}/100
-- <strong>Phân loại Ứng viên:</strong> [{data.get('ai_test_label', '')}]
-- <strong>Điểm SWAT Elite:</strong> {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
-
-<strong>Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)</strong>
-
-<strong>ĐIỂM MẠNH (Strengths):</strong>
-- <strong>Kỹ năng công nghệ và năng lực chuyên môn nổi trội:</strong>
-  {data.get('strength_tech_skills', '')}
-- <strong>Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:</strong>
-  {data.get('strength_exceeding', '')}
-
-<strong>ĐIỂM HẠN CHẾ (Gaps & Misalignments):</strong>
-- <strong>Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:</strong>
-  {data.get('gap_missing_skills', '')}
-- <strong>Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:</strong>
-  {data.get('gap_risks', '')}
-
-<strong>NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):</strong>
-- <strong>Chuyên môn mạnh nhất:</strong> {data.get('best_at_core', '')}
-- <strong>Năng lực vận hành 2AS:</strong> {data.get('best_at_2as_ops', '')}
-- <strong>Mức độ sẵn sàng sử dụng 2AS:</strong> {data.get('best_at_2as_ready', '')}
-- <strong>Ngoại ngữ & Thực chiến:</strong> {data.get('best_at_global', '')}
-
-<strong>QUYẾT ĐỊNH:</strong> {data.get('decision', '')}
+        report_text = f"""<div><strong>BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)</strong></div>
+<br>
+<div><strong>Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)</strong></div>
+<div>- <strong>AI Readiness Index (Chỉ số sẵn sàng AI):</strong> {data.get('ai_test_total', 0)}/100</div>
+<div>- <strong>Phân loại Ứng viên:</strong> [{data.get('ai_test_label', '')}]</div>
+<div>- <strong>Điểm SWAT Elite:</strong> {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])</div>
+<br>
+<div><strong>Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)</strong></div>
+<br>
+<div><strong>1. ĐIỂM MẠNH (Strengths):</strong></div>
+<div>- <strong>Kỹ năng công nghệ và năng lực chuyên môn nổi trội:</strong></div>
+{format_html(data.get('strength_tech_skills', ''))}
+<div>- <strong>Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:</strong></div>
+{format_html(data.get('strength_exceeding', ''))}
+<br>
+<div><strong>2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):</strong></div>
+<div>- <strong>Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:</strong></div>
+{format_html(data.get('gap_missing_skills', ''))}
+<div>- <strong>Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:</strong></div>
+{format_html(data.get('gap_risks', ''))}
+<br>
+<div><strong>3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):</strong></div>
+<div>- <strong>Chuyên môn mạnh nhất:</strong></div>
+{format_html(data.get('best_at_core', ''))}
+<div>- <strong>Năng lực vận hành 2AS:</strong></div>
+{format_html(data.get('best_at_2as_ops', ''))}
+<div>- <strong>Mức độ sẵn sàng sử dụng 2AS:</strong></div>
+{format_html(data.get('best_at_2as_ready', ''))}
+<div>- <strong>Ngoại ngữ & Thực chiến:</strong></div>
+{format_html(data.get('best_at_global', ''))}
+<br>
+<div><strong>QUYẾT ĐỊNH:</strong> {data.get('decision', '')}</div>
 """
         final_resp = {
             # Trường chính — bên thứ 3 chỉ cần report_text
