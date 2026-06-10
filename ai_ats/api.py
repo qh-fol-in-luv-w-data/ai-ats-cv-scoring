@@ -503,7 +503,7 @@ def _ensure_session(session_id: str = "") -> str:
 # Endpoint 1: generate_candidate_report
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=False)
 def generate_candidate_report(
     ai_test_url: str = "",
     g5_test_url: str = "",
@@ -726,7 +726,7 @@ QUYẾT ĐỊNH: {data.get('decision', '')}
 # CT Group Template — Session & Access Control
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=False)
 def get_context():
     """
     Entry point cho Frontend (initSession).
@@ -762,7 +762,7 @@ def get_context():
 
  
 # endpoint for anh zũ
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=False)
 def generate_candidate_only_report(
     ai_test_url: str = "",
     g5_test_url: str = "",
@@ -971,7 +971,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 # /api/method/ai_ats.api.score_tests
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=False)
 def score_tests(
     ai_test_url: str = "",
     g5_test_url: str = "",
@@ -1252,7 +1252,7 @@ JSON schema:
 LƯU Ý: PHẢI điền đủ 15 phần tử phan_a và 15 phần tử phan_b. KHÔNG bịa điểm. Nếu ứng viên không trả lời câu nào thì diem_cham=0."""
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=False)
 def score_single(url: str = "", type: str = "ai", api_use_cache=1):
     """
     Chấm 1 bài test theo loại.
