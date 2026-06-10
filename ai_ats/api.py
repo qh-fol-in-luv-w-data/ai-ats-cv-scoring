@@ -503,7 +503,7 @@ def _ensure_session(session_id: str = "") -> str:
 # Endpoint 1: generate_candidate_report
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def generate_candidate_report(
     ai_test_url: str = "",
     g5_test_url: str = "",
@@ -726,7 +726,7 @@ QUYẾT ĐỊNH: {data.get('decision', '')}
 # CT Group Template — Session & Access Control
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def get_context():
     """
     Entry point cho Frontend (initSession).
@@ -758,7 +758,7 @@ def get_context():
 
  
 # endpoint for anh zũ
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def generate_candidate_only_report(
     ai_test_url: str = "",
     g5_test_url: str = "",
