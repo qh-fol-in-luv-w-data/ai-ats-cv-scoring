@@ -23,8 +23,11 @@ jobs:
               source /home/frappe/frappe-env/bin/activate
               if [ ! -d "/home/frappe/frappe-bench/apps/ai_ats" ]; then
                   echo "🚀 App ai_ats chưa tồn tại. Đang tự động clone và cài đặt vào UAT..."
+                  cd /home/frappe/frappe-bench/apps
+                  git clone -b uat https://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@github.com/CTGroup-DAIT/2as-ats.git ai_ats
                   cd /home/frappe/frappe-bench
-                  bench get-app --branch uat https://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@github.com/CTGroup-DAIT/2as-ats.git
+                  ./env/bin/pip install -q -U -e ./apps/ai_ats
+                  if ! grep -q "^ai_ats$" sites/apps.txt; then echo "ai_ats" >> sites/apps.txt; fi
                   bench --site uatapp.ctpai.vn install-app ai_ats
               fi
               cd /home/frappe/frappe-bench/apps/ai_ats
@@ -63,8 +66,11 @@ jobs:
               source /home/frappe/frappe-env/bin/activate
               if [ ! -d "/home/frappe/frappe-bench/apps/ai_ats" ]; then
                   echo "🚀 App ai_ats chưa tồn tại. Đang tự động clone và cài đặt vào PROD..."
+                  cd /home/frappe/frappe-bench/apps
+                  git clone -b master https://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@github.com/CTGroup-DAIT/2as-ats.git ai_ats
                   cd /home/frappe/frappe-bench
-                  bench get-app --branch master https://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@github.com/CTGroup-DAIT/2as-ats.git
+                  ./env/bin/pip install -q -U -e ./apps/ai_ats
+                  if ! grep -q "^ai_ats$" sites/apps.txt; then echo "ai_ats" >> sites/apps.txt; fi
                   bench --site app.ctpai.vn install-app ai_ats
               fi
               cd /home/frappe/frappe-bench/apps/ai_ats
