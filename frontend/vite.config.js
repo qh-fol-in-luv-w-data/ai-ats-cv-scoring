@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/assets/ai_ats/frontend/',
+  base: process.env.NODE_ENV === 'production' ? '/assets/ai_ats/frontend/' : '/',
   build: {
     outDir: '../ai_ats/public/frontend',
     emptyOutDir: true,
