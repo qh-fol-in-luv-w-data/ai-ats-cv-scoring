@@ -41,6 +41,7 @@ jobs:
               git clean -fd
               git fetch origin uat || true
               git reset --hard origin/uat || true
+              if ! grep -q "^ai_ats$" /home/frappe/frappe-bench/sites/apps.txt; then echo "ai_ats" >> /home/frappe/frappe-bench/sites/apps.txt; fi
               /home/frappe/deploy.sh ai_ats uat uatapp.ctpai.vn
               FRONTEND_DIR=/home/frappe/frappe-bench/apps/ai_ats/frontend
               if [ -d "$FRONTEND_DIR" ]; then
@@ -96,6 +97,7 @@ jobs:
               git clean -fd
               git fetch origin master || true
               git reset --hard origin/master || true
+              if ! grep -q "^ai_ats$" /home/frappe/frappe-bench/sites/apps.txt; then echo "ai_ats" >> /home/frappe/frappe-bench/sites/apps.txt; fi
               /home/frappe/deploy.sh ai_ats master app.ctpai.vn
               FRONTEND_DIR=/home/frappe/frappe-bench/apps/ai_ats/frontend
               if [ -d "$FRONTEND_DIR" ]; then
