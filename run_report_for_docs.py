@@ -195,6 +195,15 @@ print("\n🤖 Gọi GPT-4o...")
 from openai import OpenAI
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+def _log_tokens(response, label=""):
+    try:
+        import frappe
+        from ai_ats.utils.activity_logger import ActivityLogger
+        act_logger = ActivityLogger("TokenLog", "ai_ats")
+        act_logger.log_ai_call(response, label)
+    except Exception as e:
+        print(f"[_log_tokens] Error: {e}")
+
 resp = client.chat.completions.create(
     model="gpt-4o",
     messages=[
@@ -205,6 +214,7 @@ resp = client.chat.completions.create(
     temperature=0.2,
     max_tokens=4500,
 )
+_log_tokens(resp, "ai_ats.run_report_for_docs")
 
 data = json.loads(resp.choices[0].message.content)
 print(f"  ✅ Xong! Tokens: {resp.usage.prompt_tokens}p + {resp.usage.completion_tokens}c")
