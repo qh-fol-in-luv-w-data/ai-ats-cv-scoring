@@ -1042,11 +1042,11 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 
     with Timer() as t:
         resp = _get_gpt().chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-2024-08-06",
             messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
             response_format={"type": "json_object"},
             temperature=0.2,
-            max_tokens=8000,
+            max_tokens=16384,
         )
     data = json.loads(resp.choices[0].message.content)
     _usage = resp.usage
@@ -1233,7 +1233,7 @@ JSON schema:
   "ket_luan": "",
   "nhan_xet_chung": ""
 }
-LƯU Ý: PHẢI điền đủ 15 phần tử phan_a và 15 phần tử phan_b. KHÔNG bịa điểm. Nếu ứng viên không trả lời câu nào thì diem_cham=0."""
+LƯU Ý: PHẢI điền đủ 15 phần tử phan_a và 15 phần tử phan_b. KHÔNG bịa điểm. Nếu ứng viên không trả lời câu nào thì diem_cham=0. Phần nhan_xet CẦN VIẾT RẤT NGẮN GỌN (tối đa 1-2 câu) để tránh bị cắt bớt nội dung do quá dài."""
 
 
 @frappe.whitelist(allow_guest=True)
@@ -1311,7 +1311,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         else:
             q_content = _read_cached(_G5_SCORING_DOCX, True)
         system   = _SYSTEM_5G
-        max_tok  = 5000
+        max_tok  = 16384
         user_msg = (
             f"### BỘ CÂU HỎI + THANG ĐIỂM 5G (rubric chuẩn, đối chiếu đáp án TN và chấm TL):\n{q_content[:25000]}\n\n"
             f"### BÀI LÀM ỨNG VIÊN:\n{content[:22000]}\n\n"
@@ -1324,7 +1324,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
 
     with Timer() as t:
         resp = _get_gpt().chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-2024-08-06",
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user_msg}],
             response_format={"type": "json_object"},
             temperature=0.1,
