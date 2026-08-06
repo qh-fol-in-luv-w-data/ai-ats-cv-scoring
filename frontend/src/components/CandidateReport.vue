@@ -36,8 +36,8 @@
         </div>
 
         <div class="field">
-          <label>Odoo: AI Test URL</label>
-          <input v-model="f.ai_test_url" type="url" placeholder="http://..." />
+          <label>Odoo: AI Test URL <span class="req">*</span></label>
+          <input v-model="f.ai_test_url" type="url" placeholder="http://..." required />
         </div>
         <div class="field">
           <label>Odoo: 5G Competency URL</label>
@@ -438,6 +438,7 @@ async function run() {
   err.value=''; r.value=null
   if (!cvFile.value) return err.value = '⚠️ Vui lòng tải CV lên trước.'
   if (!f.value.survey_url) return err.value = '⚠️ Interview Survey URL là bắt buộc.'
+  if (!f.value.ai_test_url) return err.value = '⚠️ AI Test URL là bắt buộc.'
   loading.value=true
   try {
     const fd = new FormData()

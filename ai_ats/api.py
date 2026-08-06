@@ -220,7 +220,68 @@ def _scrape_parallel(urls: dict) -> dict:
 
 
 
+def _extract_citation_value(line: str) -> str:
+    """Lấy phần nội dung trong '...' của một dòng citation."""
+    m = re.search(r"→\s*\[[^\]]+\]\s*'([^']+)'", line)
+    if m: return m.group(1).strip()
+    m = re.search(r'→\s*\[[^\]]+\]\s*"([^"]+)"', line)
+    if m: return m.group(1).strip()
+    m = re.search(r"→\s*\[[^\]]+\]\s*(.+)", line)
+    if m: return m.group(1).strip()
+    return ""
 
+def _clean_citations(text: str) -> str:
+    """Gộp nội dung citation →[Nguồn] '...' vào dòng bullet chính, không xóa trắng."""
+    if not text or not isinstance(text, str):
+        return text
+    lines = text.split("\n")
+    result = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+
+        # Dòng citation độc lập → gộp vào dòng main trước đó
+        if stripped.startswith("→[") or stripped.startswith("→ ["):
+            val = _extract_citation_value(stripped)
+            if val and result:
+                last = result[-1].rstrip(".").rstrip(";")
+                sep = " — " if (" — " not in last and " —" not in last) else "; "
+                result[-1] = last + sep + val
+            i += 1
+            continue
+
+        # Inline citation trong câu → bóc nội dung gộp vào
+        if "→[" in line or "→ [" in line:
+            vals = re.findall(r"→\s*\[[^\]]+\]\s*'([^']+)'", line)
+            if not vals:
+                vals = re.findall(r'→\s*\[[^\]]+\]\s*"([^"]+)"', line)
+            # Xóa phần →[...] khỏi dòng
+            clean = re.sub(r"→\s*\[[^\]]+\]\s*'[^']*'", "", line)
+            clean = re.sub(r'→\s*\[[^\]]+\]\s*"[^"]*"', "", clean)
+            clean = re.sub(r"→\s*\[[^\]]+\]", "", clean)
+            clean = clean.strip().rstrip(";,").strip()
+            if vals:
+                suffix = "; ".join(v.strip() for v in vals if v.strip())
+                if clean:
+                    sep = " — " if (" — " not in clean) else "; "
+                    clean = clean + sep + suffix
+                else:
+                    clean = suffix
+            if clean:
+                result.append(clean)
+            i += 1
+            continue
+
+        if stripped:
+            result.append(line)
+        i += 1
+    # Xóa pattern "– [Level]" hoặc "– [Thành thạo/Advanced/Intermediate/...]" còn sót
+    cleaned = []
+    for line in result:
+        line = re.sub(r'\s*[–-]\s*\[(Advanced|Intermediate|Basic|Thành thạo|Trung cấp|Cơ bản|Nâng cao|Proficient|Beginner|Expert|Senior|Junior)[^\]]*\]', '', line)
+        cleaned.append(line)
+    return "\n".join(cleaned)
 
 def _add_spacing(text: str) -> str:
     """Thêm blank line giữa các mục bullet ●/• để dễ đọc hơn."""
@@ -236,44 +297,6 @@ def _add_spacing(text: str) -> str:
         result.append(line)
     return "\n".join(result)
 
-def format_html(text: str) -> str:
-    """Format markdown text to HTML for the API response."""
-    if not text:
-        return ""
-    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
-    
-    # Tách các bullet dính nhau
-    text = text.replace(" • ", "\n• ").replace(" ● ", "\n● ")
-    
-    lines = text.split('\n')
-    out = []
-    
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-            
-        if re.match(r'^\[.+\]$', line):
-            out.append(f"<div style='margin-top: 10px; font-weight: bold; color: #4f46e5;'>{line}</div>")
-            continue
-            
-        if line.startswith('•') or line.startswith('- ') or line.startswith('●'):
-            parts = re.split(r'\s*→\s*', line)
-            bullet = parts[0].strip()
-            bullet = re.sub(r'^[•\-●]\s*', '', bullet)
-            out.append(f"<div style='margin-top: 8px;'>&#8226; {bullet}</div>")
-            for ev in parts[1:]:
-                out.append(f"<div style='margin-left: 20px; color: gray; font-style: italic;'>&rarr; {ev}</div>")
-            continue
-            
-        if line.startswith('→'):
-            out.append(f"<div style='margin-left: 20px; color: gray; font-style: italic;'>&rarr; {line[1:].strip()}</div>")
-            continue
-            
-        out.append(f"<div>{line}</div>")
-        
-    return "\n".join(out)
-
 def _clean_data(data: dict) -> dict:
     """Xóa citation + thêm spacing cho tất cả các text field trong response."""
     text_fields = [
@@ -283,7 +306,7 @@ def _clean_data(data: dict) -> dict:
     ]
     for field in text_fields:
         if field in data and isinstance(data[field], str):
-            data[field] = _add_spacing(data[field])
+            data[field] = _add_spacing(_clean_citations(data[field]))
     return data
 
 # ── Schema prompt ─────────────────────────────────────────────────────────────
@@ -306,8 +329,9 @@ Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
 - Kết quả SWAT Elite (swat_label): Đánh giá [Swat-Elite] (nếu swat_total >= 6.0) hoặc [KHÔNG ĐẠT] (nếu swat_total < 6.0) (chấm nới điểm để dễ pass).
 - Chấm điểm 5G Test (Thang 100) -> g5_total. CÁCH CHẤM 5G (tài liệu 04.06.2026): Phần A = 15 câu TN (30đ). Phần B = 15 câu TL (70đ). PHẢI điền g5_table đủ 9 hàng với diem_toi_da ĐÚNG như sau: G1=7đ (TN câu1:2đ + TL câu16:5đ), G2=16đ (TN câu2-4:6đ + TL câu17-18:10đ), G3=12đ (TN câu5:2đ + TL câu19-20:10đ), G4=26đ (TN câu6-13:16đ + TL câu21-22:10đ), G5=14đ (TN câu14-15:4đ + TL câu23-24:10đ), Thích nghi=5đ (TL câu25), Đàm phán=5đ (TL câu26), Quản lý thời gian=10đ (TL câu27:3đ+câu28:3đ+câu29:4đ), Đánh giá level=5đ (TL câu30). Tổng g5_total = 100đ. Đối chiếu đáp án từ Rubric 5G để tính điểm chính xác. KHÔNG để nguyên giá trị mặc định 0.
 - LƯU Ý CHỐNG BỊA ĐẶT (Hallucination): Điểm AI Test PHẢI được chấm hoàn toàn dựa trên nội dung TEST AI. Điểm SWAT và 5G PHẢI dựa hoàn toàn trên nội dung TEST 5G. Nếu nội dung test bị lỗi, rỗng hoặc thiếu thông tin, TUYỆT ĐỐI KHÔNG tự bịa điểm (phải cho 0 điểm).
+- QUY TẮC ĐỌC BÀI LÀM: PHẢI đọc TOÀN BỘ nội dung bài làm trước khi chấm — KHÔNG bỏ sót câu hỏi nào. Nếu ứng viên KHÔNG trả lời hoặc để trống câu nào (AI Test hoặc 5G) → diem_cham = 0, ghi rõ "Không có câu trả lời" trong ly_do/nhan_xet. PHẢI điền đầy đủ tất cả phần tử trong ai_test_table (10 câu), swat_table (4 trụ cột), g5_table (9 tiêu chí).
 - LỌC NHIỄU TÀI LIỆU HƯỚNG DẪN: Trong các tài liệu Hướng dẫn chấm điểm (Rubric) có thể có nhiều thông tin dư thừa. Bạn PHẢI BỎ QUA các phần râu ria và CHỈ TẬP TRUNG vào đúng "khung tiêu chuẩn chấm điểm" (barem/rubric) cốt lõi để đối chiếu với bài làm của ứng viên.
-- QUY TẮC TÀN KHỐC ĐỂ RA QUYẾT ĐỊNH (decision): Vì công ty áp dụng "No AI - No Hire", nếu ai_test_label là "Non-AI" HOẶC g5_total < 60.0 HOẶC swat_total < 6.0, thì BẮT BUỘC Quyết định (decision) = "KHÔNG ĐẠT" (Cúc luôn!). Chỉ được đánh giá "ĐẠT" khi tất cả đều qua môn.
+- QUY TẮC TÀN KHỐC ĐỂ RA QUYẾT ĐỊNH (decision): Vì công ty áp dụng "No AI - No Hire", nếu ai_test_label là "Non-AI" HOẶC swat_total < 6.0, thì BẮT BUỘC Quyết định (decision) = "KHÔNG ĐẠT" (Cúc luôn!). Riêng với 5G, nếu có dữ liệu mà g5_total < 60.0 thì cũng đánh "KHÔNG ĐẠT". LƯU Ý: NẾU ỨNG VIÊN THIẾU BÀI TEST 5G thì bỏ qua điều kiện điểm 5G (không dùng 5G để đánh rớt), các phần khác vẫn bắt buộc. Chỉ được đánh giá "ĐẠT" khi đáp ứng đủ các điều kiện trên.
 
 Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
 
@@ -480,7 +504,7 @@ def _ensure_session(session_id: str = "") -> str:
 # Endpoint 1: generate_candidate_report
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def generate_candidate_report(
     ai_test_url: str = "",
     g5_test_url: str = "",
@@ -523,6 +547,8 @@ def generate_candidate_report(
         # Validate bắt buộc
         if not survey_url:
             frappe.throw("survey_url là bắt buộc. Vui lòng cung cấp link phỏng vấn.", frappe.ValidationError)
+        if not ai_test_url:
+            frappe.throw("ai_test_url là bắt buộc. Vui lòng cung cấp link AI Test.", frappe.ValidationError)
 
         # CV từ upload
         if frappe.request and frappe.request.files:
@@ -546,8 +572,8 @@ def generate_candidate_report(
 ### AI SCORING GUIDE: {ai_guide[:15000]}
 ### SWAT PRD: {swat_prd[:15000]}
 ### G5 GUIDE: {g5_guide[:20000]}
-### TEST AI (link): {ai_txt[:10000]}
-### TEST 5G (link): {g5_txt[:10000]}
+### TEST AI (link): {ai_txt[:16000]}
+### TEST 5G (link): {g5_txt[:22000]}
 ### EQ/IQ (link): {eq_txt[:5000]}
 ### PHỎNG VẤN / BẢNG DỮ LIỆU ỨNG VIÊN (Survey): {sv_txt[:20000]}
 Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
@@ -619,38 +645,34 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
 
-        report_text = f"""<div><strong>BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)</strong></div>
-<br>
-<div><strong>Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)</strong></div>
-<div>- <strong>AI Readiness Index (Chỉ số sẵn sàng AI):</strong> {data.get('ai_test_total', 0)}/100</div>
-<div>- <strong>Phân loại Ứng viên:</strong> [{data.get('ai_test_label', '')}]</div>
-<div>- <strong>Điểm SWAT Elite:</strong> {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])</div>
-<br>
-<div><strong>Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)</strong></div>
-<br>
-<div><strong>1. ĐIỂM MẠNH (Strengths):</strong></div>
-<div>- <strong>Kỹ năng công nghệ và năng lực chuyên môn nổi trội:</strong></div>
-{format_html(data.get('strength_tech_skills', ''))}
-<div>- <strong>Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:</strong></div>
-{format_html(data.get('strength_exceeding', ''))}
-<br>
-<div><strong>2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):</strong></div>
-<div>- <strong>Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:</strong></div>
-{format_html(data.get('gap_missing_skills', ''))}
-<div>- <strong>Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:</strong></div>
-{format_html(data.get('gap_risks', ''))}
-<br>
-<div><strong>3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):</strong></div>
-<div>- <strong>Chuyên môn mạnh nhất:</strong></div>
-{format_html(data.get('best_at_core', ''))}
-<div>- <strong>Năng lực vận hành 2AS:</strong></div>
-{format_html(data.get('best_at_2as_ops', ''))}
-<div>- <strong>Mức độ sẵn sàng sử dụng 2AS:</strong></div>
-{format_html(data.get('best_at_2as_ready', ''))}
-<div>- <strong>Ngoại ngữ & Thực chiến:</strong></div>
-{format_html(data.get('best_at_global', ''))}
-<br>
-<div><strong>QUYẾT ĐỊNH:</strong> {data.get('decision', '')}</div>
+        report_text = f"""BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)
+
+Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)
+- AI Readiness Index (Chỉ số sẵn sàng AI): {data.get('ai_test_total', 0)}/100
+- Phân loại Ứng viên: [{data.get('ai_test_label', '')}]
+- Điểm SWAT Elite: {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
+
+Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)
+
+1. ĐIỂM MẠNH (Strengths):
+- Kỹ năng công nghệ và năng lực chuyên môn nổi trội:
+  {data.get('strength_tech_skills', '')}
+- Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:
+  {data.get('strength_exceeding', '')}
+
+2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):
+- Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:
+  {data.get('gap_missing_skills', '')}
+- Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:
+  {data.get('gap_risks', '')}
+
+3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):
+- Chuyên môn mạnh nhất: {data.get('best_at_core', '')}
+- Năng lực vận hành 2AS: {data.get('best_at_2as_ops', '')}
+- Mức độ sẵn sàng sử dụng 2AS: {data.get('best_at_2as_ready', '')}
+- Ngoại ngữ & Thực chiến: {data.get('best_at_global', '')}
+
+QUYẾT ĐỊNH: {data.get('decision', '')}
 """
         final_resp = {
             # Trường chính — bên thứ 3 chỉ cần report_text
@@ -707,7 +729,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 # CT Group Template — Session & Access Control
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def get_context():
     """
     Entry point cho Frontend (initSession).
@@ -718,11 +740,7 @@ def get_context():
     dept = ""
     role = ""
     try:
-        try:
-            from ct_agent_hub.api.core import check_app_access
-        except ImportError:
-            from ct_agent_hub.api import check_app_access
-
+        from ct_agent_hub.api import check_app_access
         agents_data = check_app_access("ai_ats")
         user_depts = agents_data.get("user_departments", [])
         dept = ",".join(user_depts) if user_depts else ""
@@ -743,7 +761,7 @@ def get_context():
 
  
 # endpoint for anh zũ
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def generate_candidate_only_report(
     ai_test_url: str = "",
     g5_test_url: str = "",
@@ -786,6 +804,8 @@ def generate_candidate_only_report(
         # Validate bắt buộc
         if not survey_url:
             frappe.throw("survey_url là bắt buộc. Vui lòng cung cấp link phỏng vấn.", frappe.ValidationError)
+        if not ai_test_url:
+            frappe.throw("ai_test_url là bắt buộc. Vui lòng cung cấp link AI Test.", frappe.ValidationError)
 
         # CV từ upload
         if frappe.request and frappe.request.files:
@@ -809,8 +829,8 @@ def generate_candidate_only_report(
 ### AI SCORING GUIDE: {ai_guide[:15000]}
 ### SWAT PRD: {swat_prd[:15000]}
 ### G5 GUIDE: {g5_guide[:20000]}
-### TEST AI (link): {ai_txt[:10000]}
-### TEST 5G (link): {g5_txt[:10000]}
+### TEST AI (link): {ai_txt[:16000]}
+### TEST 5G (link): {g5_txt[:22000]}
 ### EQ/IQ (link): {eq_txt[:5000]}
 ### PHỎNG VẤN / BẢNG DỮ LIỆU ỨNG VIÊN (Survey): {sv_txt[:20000]}
 Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
@@ -891,38 +911,34 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
 
-        report_text = f"""<div><strong>BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)</strong></div>
-<br>
-<div><strong>Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)</strong></div>
-<div>- <strong>AI Readiness Index (Chỉ số sẵn sàng AI):</strong> {data.get('ai_test_total', 0)}/100</div>
-<div>- <strong>Phân loại Ứng viên:</strong> [{data.get('ai_test_label', '')}]</div>
-<div>- <strong>Điểm SWAT Elite:</strong> {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])</div>
-<br>
-<div><strong>Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)</strong></div>
-<br>
-<div><strong>1. ĐIỂM MẠNH (Strengths):</strong></div>
-<div>- <strong>Kỹ năng công nghệ và năng lực chuyên môn nổi trội:</strong></div>
-{format_html(data.get('strength_tech_skills', ''))}
-<div>- <strong>Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:</strong></div>
-{format_html(data.get('strength_exceeding', ''))}
-<br>
-<div><strong>2. ĐIỂM HẠN CHẾ (Gaps & Misalignments):</strong></div>
-<div>- <strong>Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:</strong></div>
-{format_html(data.get('gap_missing_skills', ''))}
-<div>- <strong>Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:</strong></div>
-{format_html(data.get('gap_risks', ''))}
-<br>
-<div><strong>3. NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):</strong></div>
-<div>- <strong>Chuyên môn mạnh nhất:</strong></div>
-{format_html(data.get('best_at_core', ''))}
-<div>- <strong>Năng lực vận hành 2AS:</strong></div>
-{format_html(data.get('best_at_2as_ops', ''))}
-<div>- <strong>Mức độ sẵn sàng sử dụng 2AS:</strong></div>
-{format_html(data.get('best_at_2as_ready', ''))}
-<div>- <strong>Ngoại ngữ & Thực chiến:</strong></div>
-{format_html(data.get('best_at_global', ''))}
-<br>
-<div><strong>QUYẾT ĐỊNH:</strong> {data.get('decision', '')}</div>
+        report_text = f"""BÁO CÁO ĐẦU RA (OUTPUT AI REPORT PROFILE)
+
+<strong>Phần I: Tổng quan Hồ sơ & Điểm số (Executive Summary)</strong>
+- <strong>AI Readiness Index (Chỉ số sẵn sàng AI):</strong> {data.get('ai_test_total', 0)}/100
+- <strong>Phân loại Ứng viên:</strong> [{data.get('ai_test_label', '')}]
+- <strong>Điểm SWAT Elite:</strong> {data.get('swat_total', 0)}/10 ([{data.get('swat_label', '')}])
+
+<strong>Phần II: Phân tích Năng lực Chuyên sâu (Core Analysis)</strong>
+
+<strong>ĐIỂM MẠNH (Strengths):</strong>
+- <strong>Kỹ năng công nghệ và năng lực chuyên môn nổi trội:</strong>
+  {data.get('strength_tech_skills', '')}
+- <strong>Các chỉ số đánh giá vượt chuẩn (Exceeding Standards) so với JD hiện tại:</strong>
+  {data.get('strength_exceeding', '')}
+
+<strong>ĐIỂM HẠN CHẾ (Gaps & Misalignments):</strong>
+- <strong>Kỹ năng/năng lực còn thiếu hoặc tư duy chưa tương thích với văn hóa AI First:</strong>
+  {data.get('gap_missing_skills', '')}
+- <strong>Các rủi ro về mặt vận hành hoặc bảo mật dữ liệu dựa trên các bài test:</strong>
+  {data.get('gap_risks', '')}
+
+<strong>NĂNG LỰC NỔI BẬT NHẤT ("BEST AT"):</strong>
+- <strong>Chuyên môn mạnh nhất:</strong> {data.get('best_at_core', '')}
+- <strong>Năng lực vận hành 2AS:</strong> {data.get('best_at_2as_ops', '')}
+- <strong>Mức độ sẵn sàng sử dụng 2AS:</strong> {data.get('best_at_2as_ready', '')}
+- <strong>Ngoại ngữ & Thực chiến:</strong> {data.get('best_at_global', '')}
+
+<strong>QUYẾT ĐỊNH:</strong> {data.get('decision', '')}
 """
         final_resp = {
             # Trường chính — bên thứ 3 chỉ cần report_text
@@ -956,7 +972,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 # /api/method/ai_ats.api.score_tests
 # ══════════════════════════════════════════════════════════════════════════════
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def score_tests(
     ai_test_url: str = "",
     g5_test_url: str = "",
@@ -1008,8 +1024,8 @@ def score_tests(
 ### AI SCORING GUIDE: {ai_guide[:15000]}
 ### SWAT PRD: {swat_prd[:15000]}
 ### G5 GUIDE: {g5_guide[:20000]}
-### TEST AI (link): {ai_txt[:10000]}
-### TEST 5G (link): {g5_txt[:10000]}
+### TEST AI (link): {ai_txt[:16000]}
+### TEST 5G (link): {g5_txt[:22000]}
 ### EQ/IQ (link): {eq_txt[:5000]}
 ### PHỎNG VẤN / BẢNG DỮ LIỆU ỨNG VIÊN (Survey): {sv_txt[:20000]}
 Ngày: {datetime.now().strftime("%d/%m/%Y %H:%M")}
@@ -1026,11 +1042,11 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 
     with Timer() as t:
         resp = _get_gpt().chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-2024-08-06",
             messages=[{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user_msg}],
             response_format={"type": "json_object"},
             temperature=0.2,
-            max_tokens=8000,
+            max_tokens=16384,
         )
     data = json.loads(resp.choices[0].message.content)
     _usage = resp.usage
@@ -1146,34 +1162,17 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
 # Params: url=<link bài làm>  type=ai|5g
 # ══════════════════════════════════════════════════════════════════════════════
 
-# System prompt riêng cho từng loại — gọn hơn _SYSTEM, không hallucinate
-_SYSTEM_AI = """Bạn là chuyên gia chấm bài TEST AI của CT Group.
-CHỈ chấm bài AI Test bên dưới dựa trên rubric được cung cấp.
-Trả JSON:
-{
-  "candidate_name": "",
-  "table": [
-    {"cau": 1, "noi_dung": "AI Awareness",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 2, "noi_dung": "AI Daily Use",        "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 3, "noi_dung": "AI Self-Assessment",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 4, "noi_dung": "AI Problem Solving",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 5, "noi_dung": "Prompt Engineering",  "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 6, "noi_dung": "AI x Teamwork",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 7, "noi_dung": "AI Productivity",     "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 8, "noi_dung": "AI Mindset",          "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau": 9, "noi_dung": "AI Limitation",       "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""},
-    {"cau":10, "noi_dung": "AI Growth Plan",      "diem_toi_da": 10, "diem_cham": 0, "ly_do": ""}
-  ],
-  "total": 0,
-  "label": "AI-Ready",
-  "nhan_xet": ""
-}
-Quy tắc: label = "AI-Ready" nếu total >= 75, "AI-Khá" nếu 50–74, "Non-AI" nếu < 50. KHÔNG bịa điểm."""
-
 _SYSTEM_AI = """Bạn là chuyên gia chấm bài TEST AI của CT Group.
 CHỈ chấm bài AI Test bên dưới dựa trên rubric được cung cấp.
 Rubric có 10 câu x 10 điểm = 100 điểm, mỗi câu có 4 mức: 0–3 / 4–6 / 7–9 / 10 điểm.
 Chấm CHÍNH XÁC theo từng mức, giải thích rõ lý do dựa vào nội dung bài làm.
+
+QUY TẮC BẮT BUỘC:
+1. ĐỌC TOÀN BỘ nội dung bài làm trước khi chấm — KHÔNG bỏ sót câu hỏi nào.
+2. Nếu ứng viên KHÔNG trả lời hoặc để trống câu nào → diem_cham = 0, ly_do = "Không có câu trả lời".
+3. PHẢI điền đủ 10 phần tử trong mảng table — KHÔNG được bỏ câu nào.
+4. KHÔNG bịa điểm, KHÔNG tự suy diễn nội dung khi không có câu trả lời.
+
 Trả JSON:
 {
   "candidate_name": "",
@@ -1234,10 +1233,10 @@ JSON schema:
   "ket_luan": "",
   "nhan_xet_chung": ""
 }
-LƯU Ý: PHẢI điền đủ 15 phần tử phan_a và 15 phần tử phan_b. KHÔNG bịa điểm. Nếu ứng viên không trả lời câu nào thì diem_cham=0."""
+LƯU Ý: PHẢI điền đủ 15 phần tử phan_a và 15 phần tử phan_b. KHÔNG bịa điểm. Nếu ứng viên không trả lời câu nào thì diem_cham=0. Phần nhan_xet CẦN VIẾT RẤT NGẮN GỌN (tối đa 1-2 câu) để tránh bị cắt bớt nội dung do quá dài."""
 
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def score_single(url: str = "", type: str = "ai", api_use_cache=1):
     """
     Chấm 1 bài test theo loại.
@@ -1273,9 +1272,9 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
 
     # Scrape bài làm
     content = _scrape(url)
-    if content.startswith("["):
-        _logger.finish_action(action_name, status="failed", error_message=f"Scrape failed: {content[:200]}")
-        frappe.throw(f"Không scrape được nội dung từ URL: {content}", frappe.ValidationError)
+    if not content or len(content) < 100:
+        _logger.finish_action(action_name, status="failed", error_message="Scrape returned empty or too short content")
+        frappe.throw("Không scrape được nội dung từ URL — trang rỗng hoặc không tải được.", frappe.ValidationError)
 
     if api_use_cache:
         import hashlib
@@ -1296,7 +1295,14 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
             ai_guide = _read_cached(_AI_SCORING_PDF, True)
         system   = _SYSTEM_AI
         max_tok  = 2500
-        user_msg = f"""### RUBRIC CHẤM ĐIỂM AI TEST (thang 4 mức, 10 câu x 10đ):\n{ai_guide}\n\n### BÀI LÀM ỨNG VIÊN:\n{content[:12000]}\n\nChấm từng câu theo đúng mức điểm từ rubric, trả JSON."""
+        user_msg = (
+            f"### RUBRIC CHẤM ĐIỂM AI TEST (thang 4 mức, 10 câu x 10đ):\n{ai_guide}\n\n"
+            f"### BÀI LÀM ỨNG VIÊN:\n{content[:18000]}\n\n"
+            "YÊU CẦU: Đọc TOÀN BỘ bài làm phía trên. Với từng câu 1–10, tìm đúng câu trả lời "
+            "của ứng viên trong bài (đối chiếu theo số câu hoặc nội dung câu hỏi). "
+            "Nếu không tìm thấy câu trả lời nào cho câu đó → diem_cham=0, ly_do='Không có câu trả lời'. "
+            "PHẢI có đủ 10 phần tử trong table. Trả JSON."
+        )
     else:
         # Dùng file BM16 (1).docx có đủ câu hỏi + thang điểm tự luận
         if _G5_QUESTION_DOCX.exists():
@@ -1305,12 +1311,20 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         else:
             q_content = _read_cached(_G5_SCORING_DOCX, True)
         system   = _SYSTEM_5G
-        max_tok  = 5000
-        user_msg = f"""### BỘ CÂU HỎI + THANG ĐIỂM 5G (đây là rubric chuẩn, dùng để đối chiếu đáp án TN và chấm TL):\n{q_content[:25000]}\n\n### BÀI LÀM ỨNG VIÊN:\n{content[:12000]}\n\nChấm điểm đầy đủ 15 câu TN + 15 câu TL và trả JSON."""
+        max_tok  = 16384
+        user_msg = (
+            f"### BỘ CÂU HỎI + THANG ĐIỂM 5G (rubric chuẩn, đối chiếu đáp án TN và chấm TL):\n{q_content[:25000]}\n\n"
+            f"### BÀI LÀM ỨNG VIÊN:\n{content[:22000]}\n\n"
+            "YÊU CẦU: Đọc TOÀN BỘ bài làm phía trên. "
+            "Phần A: đối chiếu từng câu 1–15 với đáp án đúng trong rubric. "
+            "Phần B: với từng câu 16–30, tìm đúng câu trả lời của ứng viên (theo số câu hoặc nội dung câu hỏi). "
+            "Nếu không tìm thấy câu trả lời nào → diem_cham=0, nhan_xet='Không có câu trả lời'. "
+            "PHẢI có đủ 15 phần tử phan_a và 15 phần tử phan_b. Trả JSON."
+        )
 
     with Timer() as t:
         resp = _get_gpt().chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-2024-08-06",
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user_msg}],
             response_format={"type": "json_object"},
             temperature=0.1,
