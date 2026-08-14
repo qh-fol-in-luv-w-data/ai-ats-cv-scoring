@@ -167,7 +167,7 @@ def _scrape(url: str) -> str:
     if not url: return ""
     # Bước 1: HTTP scrape (nhanh ~1-2s)
     try:
-        r = requests.get(url, timeout=15, verify=False)
+        r = requests.get(url, timeout=15, verify=True)
         soup = BeautifulSoup(r.text, "html.parser")
         for t in soup(["script","style","nav","footer","header"]): t.decompose()
         txt = soup.get_text(separator="\n", strip=True)
@@ -194,7 +194,7 @@ def _scrape_parallel(urls: dict) -> dict:
         if not url:
             return key, ""
         try:
-            r = requests.get(url, timeout=15, verify=False)
+            r = requests.get(url, timeout=15, verify=True)
             soup = BeautifulSoup(r.text, "html.parser")
             for t in soup(["script","style","nav","footer","header"]): t.decompose()
             txt = soup.get_text(separator="\n", strip=True)
@@ -583,7 +583,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         cache_key = ""
         if api_use_cache:
             raw_key = f"v4_{cv_text}{jd_text}{ai_test_url}{g5_test_url}{eq_test_url}{survey_url}"
-            req_hash = hashlib.md5(raw_key.encode('utf-8')).hexdigest()
+            req_hash = hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
             cache_key = f"ai_ats_api_resp_{req_hash}"
             cached_resp = frappe.cache().get_value(cache_key)
             if cached_resp:
@@ -840,7 +840,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
         cache_key = ""
         if api_use_cache:
             raw_key = f"v4_{cv_text}{jd_text}{ai_test_url}{g5_test_url}{eq_test_url}{survey_url}"
-            req_hash = hashlib.md5(raw_key.encode('utf-8')).hexdigest()
+            req_hash = hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
             cache_key = f"ai_ats_api_resp_{req_hash}"
             cached_resp = frappe.cache().get_value(cache_key)
             if cached_resp:
@@ -1034,7 +1034,7 @@ Trả về JSON hợp lệ, điền đủ mọi trường."""
     # Cache (off mặc định vì endpoint này dùng để review)
     if api_use_cache:
         raw_key = f"score_tests_v1_{cv_text}{jd_text}{ai_test_url}{g5_test_url}{eq_test_url}{survey_url}"
-        req_hash = hashlib.md5(raw_key.encode('utf-8')).hexdigest()
+        req_hash = hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
         cache_key = f"ai_ats_score_{req_hash}"
         cached = frappe.cache().get_value(cache_key)
         if cached:
@@ -1279,7 +1279,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
     if api_use_cache:
         import hashlib
         raw_key = f"score_single_{test_type}_{url}_{content[:1000]}"
-        req_hash = hashlib.md5(raw_key.encode('utf-8')).hexdigest()
+        req_hash = hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
         cache_key = f"ai_ats_score_single_{req_hash}"
         cached = frappe.cache().get_value(cache_key)
         if cached:

@@ -14,11 +14,11 @@ AI_DIR   = Path("/Users/_qh.fol_/AI_ATS")
 OUT_DIR  = Path("/Users/_qh.fol_/.gemini/antigravity-ide/brain/c209b6ea-a7d9-4b64-a951-2459f413a1ef/screenshots")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 # ─── Input URLs & files ────────────────────────────────────────────────────────
-AI_TEST_URL = "https://hr-dev.ctgroupvietnam.com/survey/print/888e33e9-fdba-4da7-9f3a-d670f0cf7f20?answer_token=37a3d8e6-35cf-42c0-828e-c8020e044eaa"
-G5_TEST_URL = "https://hr-dev.ctgroupvietnam.com/survey/print/01146d26-7f68-4390-b0d4-5bb683b02aee?answer_token=bad215b1-dee6-4409-a098-f4e02f8e937c"
+AI_TEST_URL = os.environ.get("AI_TEST_URL", "https://hr-dev.ctgroupvietnam.com/survey/print/888e33e9-fdba-4da7-9f3a-d670f0cf7f20")
+G5_TEST_URL = os.environ.get("G5_TEST_URL", "https://hr-dev.ctgroupvietnam.com/survey/print/01146d26-7f68-4390-b0d4-5bb683b02aee")
 EQ_TEST_URL = "https://jobtest.vn/test/report/6a067fcf3289816e794732c3"
 CV_PDF_PATH = AI_DIR / "BDLUV - IT TEST TRUONG HOANG VU (full kn) 1.pdf"
 AI_SCORING_PDF  = AI_DIR / "CTG-KNC-TD-QĐ04.BM02-HƯỚNG DẪN CHẤM ĐIỂM BÀI TEST NĂNG LỰC AI (1).pdf"
@@ -69,7 +69,7 @@ import pypdf
 def scrape(url):
     if not url: return "[Chưa có]"
     try:
-        r = requests.get(url, timeout=30, verify=False)
+        r = requests.get(url, timeout=30, verify=True)
         soup = BeautifulSoup(r.text, "html.parser")
         for t in soup(["script","style","nav","footer","header"]): t.decompose()
         txt = soup.get_text(separator="\n", strip=True)
