@@ -13,8 +13,8 @@ BASE_URL    = "http://127.0.0.1:8000"
 API_TOKEN   = os.getenv("FRAPPE_TOKEN", "")   # export FRAPPE_TOKEN=key:secret
 
 # Các link bài test (thay bằng link thật khi cần)
-AI_TEST_URL  = "https://hr-dev.ctgroupvietnam.com/survey/print/888e33e9-fdba-4da7-9f3a-d670f0cf7f20?answer_token=37a3d8e6-35cf-42c0-828e-c8020e044eaa"
-G5_TEST_URL  = "https://hr-dev.ctgroupvietnam.com/survey/print/01146d26-7f68-4390-b0d4-5bb683b02aee?answer_token=bad215b1-dee6-4409-a098-f4e02f8e937c"
+AI_TEST_URL  = "https://hr-dev.ctgroupvietnam.com/survey/print/888e33e9-fdba-4da7-9f3a-d670f0cf7f20"
+G5_TEST_URL  = "https://hr-dev.ctgroupvietnam.com/survey/print/01146d26-7f68-4390-b0d4-5bb683b02aee"
 EQ_TEST_URL  = ""
 SURVEY_URL   = "http://10.6.10.12:8069/survey/result/819/53d69ba4-ead8-4a0d-b831-72bb8e1b0567"
 JD_TEXT      = "Vị trí Senior Fullstack Developer thuộc Khối DAIT, yêu cầu AI First mindset."

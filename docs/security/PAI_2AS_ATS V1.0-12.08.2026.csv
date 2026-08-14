@@ -1,0 +1,341 @@
+Category,Package,Type,Severity/Prob,Status,File Path,Line,AI Summary,Rule Key
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,30,"Nguyên nhân: Mã nguồn hoặc cấu hình chưa đáp ứng yêu cầu an toàn của rule được phát hiện.
+Cách khắc phục: Kiểm tra file và dòng trong báo cáo, cập nhật cấu hình hoặc phiên bản thư viện an toàn trở lên.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):github-pat
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,30,"Nguyên nhân: Tìm thấy token GitHub trong file cấu hình, gây rủi ro bảo mật.
+Cách khắc phục: Xóa token GitHub khỏi file .github/workflows/deploy.yml.",external_secretlint (MegaLinter REPOSITORY_SECRETLINT):@secretlint/secretlint-rule-preset-recommend > @secretlint/secretlint-rule-github
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,33,"Nguyên nhân: Mã nguồn hoặc cấu hình chưa đáp ứng yêu cầu an toàn của rule được phát hiện.
+Cách khắc phục: Kiểm tra file và dòng trong báo cáo, cập nhật cấu hình hoặc phiên bản thư viện an toàn trở lên.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):github-pat
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,42,"Nguyên nhân: Token truy cập cá nhân GitHub bị lộ trong file cấu hình.
+Cách khắc phục: Xóa token khỏi .github/workflows/deploy.yml và sử dụng biến môi trường để bảo mật.",external_kingfisher (MegaLinter REPOSITORY_KINGFISHER):GitHub Personal Access Token
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,42,"Nguyên nhân: Mã nguồn hoặc cấu hình chưa đáp ứng yêu cầu an toàn của rule được phát hiện.
+Cách khắc phục: Kiểm tra file và dòng trong báo cáo, cập nhật cấu hình hoặc phiên bản thư viện an toàn trở lên.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):github-pat
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,91,"Nguyên nhân: Mã nguồn hoặc cấu hình chưa đáp ứng yêu cầu an toàn của rule được phát hiện.
+Cách khắc phục: Kiểm tra file và dòng trong báo cáo, cập nhật cấu hình hoặc phiên bản thư viện an toàn trở lên.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):github-pat
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,33,"Nguyên nhân: Tìm thấy token GitHub trong file cấu hình, gây rủi ro bảo mật.
+Cách khắc phục: Xóa token GitHub khỏi file .github/workflows/deploy.yml.",external_secretlint (MegaLinter REPOSITORY_SECRETLINT):@secretlint/secretlint-rule-preset-recommend > @secretlint/secretlint-rule-github
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,42,"Nguyên nhân: Tìm thấy token GitHub trong file cấu hình, gây rủi ro bảo mật.
+Cách khắc phục: Xóa token GitHub khỏi file .github/workflows/deploy.yml.",external_secretlint (MegaLinter REPOSITORY_SECRETLINT):@secretlint/secretlint-rule-preset-recommend > @secretlint/secretlint-rule-github
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,94,"Nguyên nhân: Mã nguồn hoặc cấu hình chưa đáp ứng yêu cầu an toàn của rule được phát hiện.
+Cách khắc phục: Kiểm tra file và dòng trong báo cáo, cập nhật cấu hình hoặc phiên bản thư viện an toàn trở lên.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):github-pat
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,91,"Nguyên nhân: Tìm thấy token GitHub trong file cấu hình, gây rủi ro bảo mật.
+Cách khắc phục: Xóa token GitHub khỏi file .github/workflows/deploy.yml.",external_secretlint (MegaLinter REPOSITORY_SECRETLINT):@secretlint/secretlint-rule-preset-recommend > @secretlint/secretlint-rule-github
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,.github/workflows/deploy.yml,1,"Nguyên nhân: Quyền truy cập cấp cao được thiết lập cho phép ghi tất cả.
+Cách khắc phục: Thay đổi quyền truy cập trong .github/workflows/deploy.yml để không cho phép ghi tất cả.",external_Checkov (MegaLinter REPOSITORY_CHECKOV):CKV2_GHA_1
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,94,"Nguyên nhân: Tìm thấy token GitHub trong file cấu hình, gây rủi ro bảo mật.
+Cách khắc phục: Xóa token GitHub khỏi file .github/workflows/deploy.yml.",external_secretlint (MegaLinter REPOSITORY_SECRETLINT):@secretlint/secretlint-rule-preset-recommend > @secretlint/secretlint-rule-github
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,103,"Nguyên nhân: Tìm thấy token GitHub trong file cấu hình, gây rủi ro bảo mật.
+Cách khắc phục: Xóa token GitHub khỏi file .github/workflows/deploy.yml.",external_secretlint (MegaLinter REPOSITORY_SECRETLINT):@secretlint/secretlint-rule-preset-recommend > @secretlint/secretlint-rule-github
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,103,"Nguyên nhân: Mã nguồn hoặc cấu hình chưa đáp ứng yêu cầu an toàn của rule được phát hiện.
+Cách khắc phục: Kiểm tra file và dòng trong báo cáo, cập nhật cấu hình hoặc phiên bản thư viện an toàn trở lên.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):github-pat
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,233,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,ai_ats/api.py,245,"Nguyên nhân: Sử dụng nhiều lời gọi startswith() hoặc endswith() liên tiếp kết hợp bằng toán tử 'or' để kiểm tra một chuỗi với nhiều tiền tố/hậu tố khác nhau, gây ra mã dài dòng và khó bảo trì.
+Cách khắc phục: Gom tất cả các tiền tố hoặc hậu tố cần kiểm tra vào một tuple và truyền nó làm đối số duy nhất cho phương thức startswith() hoặc endswith().",python:S8513
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,508,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,765,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,1240,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,39,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,441,"Nguyên nhân: Việc thực hiện phép gán giá trị bên trong một biểu thức phụ làm giảm độ rõ ràng và dễ gây hiểu lầm.
+Cách khắc phục: Tách các phép gán ra thành câu lệnh riêng biệt để làm rõ hành động và tránh tạo hiệu ứng phụ không mong muốn.",javascript:S1121
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,101,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,121,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,33,"Nguyên nhân: Rò rỉ bí mật xảy ra khi dữ liệu xác thực nhạy cảm được lưu trữ cùng mã nguồn ứng dụng.
+Cách khắc phục: Thu hồi bí mật đã rò rỉ và xóa chúng khỏi mã nguồn ứng dụng.",secrets:S6689
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,42,"Nguyên nhân: Rò rỉ bí mật xảy ra khi dữ liệu xác thực nhạy cảm được lưu trữ cùng mã nguồn ứng dụng.
+Cách khắc phục: Thu hồi bí mật đã rò rỉ và xóa chúng khỏi mã nguồn ứng dụng.",secrets:S6689
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,94,"Nguyên nhân: Rò rỉ bí mật xảy ra khi dữ liệu xác thực nhạy cảm được lưu trữ cùng mã nguồn ứng dụng.
+Cách khắc phục: Thu hồi bí mật đã rò rỉ và xóa chúng khỏi mã nguồn ứng dụng.",secrets:S6689
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,103,"Nguyên nhân: Rò rỉ bí mật xảy ra khi dữ liệu xác thực nhạy cảm được lưu trữ cùng mã nguồn ứng dụng.
+Cách khắc phục: Thu hồi bí mật đã rò rỉ và xóa chúng khỏi mã nguồn ứng dụng.",secrets:S6689
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,30,"Nguyên nhân: Rò rỉ bí mật xảy ra khi dữ liệu xác thực nhạy cảm được lưu trữ cùng mã nguồn ứng dụng.
+Cách khắc phục: Thu hồi bí mật đã rò rỉ và xóa chúng khỏi mã nguồn ứng dụng.",secrets:S6689
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,.github/workflows/deploy.yml,91,"Nguyên nhân: Rò rỉ bí mật xảy ra khi dữ liệu xác thực nhạy cảm được lưu trữ cùng mã nguồn ứng dụng.
+Cách khắc phục: Thu hồi bí mật đã rò rỉ và xóa chúng khỏi mã nguồn ứng dụng.",secrets:S6689
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,create_ats_doc.py,45,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,create_ats_doc.py,46,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,create_ats_doc.py,47,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,create_ats_doc.py,48,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,create_ats_doc.py,49,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,create_ats_doc.py,76,"Nguyên nhân: Chuỗi ký tự lặp lại làm phức tạp quá trình tái cấu trúc mã.
+Cách khắc phục: Sử dụng hằng số để thay thế các chuỗi ký tự lặp lại.",python:S1192
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,create_ats_doc.py,102,"Nguyên nhân: Tham số hàm không sử dụng gây nhầm lẫn và lỗi tiềm ẩn trong mã.
+Cách khắc phục: Xóa các tham số không được sử dụng trong hàm.",python:S1172
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,create_ats_doc.py,128,"Nguyên nhân: Tham số hàm không sử dụng gây nhầm lẫn và lỗi tiềm ẩn trong mã.
+Cách khắc phục: Xóa các tham số không được sử dụng trong hàm.",python:S1172
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,create_ats_doc.py,418,"Nguyên nhân: Chuỗi định dạng không hợp lệ khi các tham số không khớp với các trường thay thế.
+Cách khắc phục: Đảm bảo các tham số khớp với các trường thay thế trong chuỗi định dạng.",python:S3457
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,generate_doc.py,82,"Nguyên nhân: Tham số hàm không sử dụng gây nhầm lẫn và lỗi tiềm ẩn trong mã.
+Cách khắc phục: Xóa các tham số không được sử dụng trong hàm.",python:S1172
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,generate_doc.py,460,"Nguyên nhân: Chuỗi định dạng không hợp lệ khi các tham số không khớp với các trường thay thế.
+Cách khắc phục: Đảm bảo các tham số khớp với các trường thay thế trong chuỗi định dạng.",python:S3457
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,run_report_for_docs.py,17,"Nguyên nhân: Mã nguồn chứa OpenAI API Key trong file run_report_for_docs.py tại dòng 17.
+Cách khắc phục: Xóa hoặc mã hóa OpenAI API Key và sử dụng biến môi trường để quản lý key.",external_kingfisher (MegaLinter REPOSITORY_KINGFISHER):OpenAI API Key
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,run_report_for_docs.py,17,"Nguyên nhân: Phát hiện OpenAI API Key bị lộ trong file run_report_for_docs.py tại dòng 17.
+Cách khắc phục: Loại bỏ key khỏi mã nguồn và lưu trữ trong biến môi trường hoặc công cụ quản lý bí mật.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):openai-api-key
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,run_report_for_docs.py,17,"Nguyên nhân: Mã nguồn chứa OpenAI API key bị lộ, có thể bị kẻ xấu lợi dụng.
+Cách khắc phục: Xóa API key khỏi mã nguồn, chuyển sang sử dụng biến môi trường và thay đổi key mới.",external_secretlint (MegaLinter REPOSITORY_SECRETLINT):@secretlint/secretlint-rule-preset-recommend > @secretlint/secretlint-rule-openai
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,run_report_for_docs.py,20,"Nguyên nhân: Phát hiện thông tin bí mật (API key) trong file mã nguồn, gây nguy cơ bị truy cập trái phép.
+Cách khắc phục: Loại bỏ key khỏi file, lưu trữ an toàn bằng biến môi trường và thu hồi key cũ.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):generic-api-key
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,run_report_for_docs.py,21,"Nguyên nhân: Phát hiện thông tin bí mật (API key) trong file mã nguồn, gây nguy cơ bị truy cập trái phép.
+Cách khắc phục: Loại bỏ key khỏi file, lưu trữ an toàn bằng biến môi trường và thu hồi key cũ.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):generic-api-key
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,run_report_for_docs.py,72,"Nguyên nhân: Đã tắt tính năng xác thực chứng chỉ số, khiến kết nối có thể bị tấn công man-in-the-middle và dữ liệu bị đánh cắp.
+Cách khắc phục: Bật lại xác thực chứng chỉ số và sử dụng chứng chỉ hợp lệ từ tổ chức uy tín thay vì bỏ qua kiểm tra bảo mật.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS126186
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,run_report_for_docs.py,72,"Nguyên nhân: Mã nguồn tắt xác thực chứng chỉ TLS bằng cách thiết lập SSL.VERIFY_NONE, khiến kết nối không kiểm tra tính hợp lệ của chứng chỉ máy chủ.
+Cách khắc phục: Bỏ đối số verify_callback để OpenSSL sử dụng quy trình xác thực tích hợp sẵn, hoặc gọi set_verify với cờ xác thực phù hợp.",python:S4830
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,run_report_for_docs.py,72,"Nguyên nhân: Xác thực chứng chỉ đã bị tắt đi một cách rõ ràng, cho phép kết nối không an toàn tới máy chủ không an toàn.
+Cách khắc phục: Bật lại xác thực chứng chỉ trong file run_report_for_docs.py dòng 72.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):python.requests.security.disabled-cert-validation.disabled-cert-validation
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,run_report_for_docs.py,72,"Nguyên nhân: Ứng dụng gọi thư viện requests với tham số verify=False, làm tắt kiểm tra chứng chỉ SSL khi kết nối đến máy chủ từ xa, gây nguy cơ tấn công trung gian.
+Cách khắc phục: Đổi thành verify=True hoặc truyền đường dẫn đến tệp chứng chỉ CA đáng tin cậy khi gọi requests, đồng thời kiểm tra lại toàn bộ mã nguồn để loại bỏ các lời gọi tắt xác thực SSL.",external_bandit:B501
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,run_report_for_docs.py,167,"Nguyên nhân: Chuỗi định dạng không hợp lệ khi các tham số không khớp với các trường thay thế.
+Cách khắc phục: Đảm bảo các tham số khớp với các trường thay thế trong chuỗi định dạng.",python:S3457
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,run_report_for_docs.py,242,"Nguyên nhân: Điều kiện lồng nhau làm code khó đọc và phức tạp thứ tự thực hiện.
+Cách khắc phục: Tách biểu thức điều kiện lồng nhau thành câu lệnh riêng trên dòng khác, trừ khi nằm trong comprehension vẫn giữ nguyên.",python:S3358
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,run_report_for_docs.py,267,"Nguyên nhân: Điều kiện lồng nhau làm code khó đọc và phức tạp thứ tự thực hiện.
+Cách khắc phục: Tách biểu thức điều kiện lồng nhau thành câu lệnh riêng trên dòng khác, trừ khi nằm trong comprehension vẫn giữ nguyên.",python:S3358
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,run_report_for_docs.py,364,"Nguyên nhân: Điều kiện lồng nhau làm code khó đọc và phức tạp thứ tự thực hiện.
+Cách khắc phục: Tách biểu thức điều kiện lồng nhau thành câu lệnh riêng trên dòng khác, trừ khi nằm trong comprehension vẫn giữ nguyên.",python:S3358
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,170,"Nguyên nhân: Ứng dụng gọi thư viện requests với tham số verify=False, làm tắt kiểm tra chứng chỉ SSL khi kết nối đến máy chủ từ xa, gây nguy cơ tấn công trung gian.
+Cách khắc phục: Đổi thành verify=True hoặc truyền đường dẫn đến tệp chứng chỉ CA đáng tin cậy khi gọi requests, đồng thời kiểm tra lại toàn bộ mã nguồn để loại bỏ các lời gọi tắt xác thực SSL.",external_bandit:B501
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,170,"Nguyên nhân: Đã tắt tính năng xác thực chứng chỉ số, khiến kết nối có thể bị tấn công man-in-the-middle và dữ liệu bị đánh cắp.
+Cách khắc phục: Bật lại xác thực chứng chỉ số và sử dụng chứng chỉ hợp lệ từ tổ chức uy tín thay vì bỏ qua kiểm tra bảo mật.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS126186
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,170,"Nguyên nhân: Xác thực chứng chỉ đã bị tắt đi một cách rõ ràng, cho phép kết nối không an toàn tới máy chủ không an toàn.
+Cách khắc phục: Bật lại xác thực chứng chỉ trong file run_report_for_docs.py dòng 72.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):python.requests.security.disabled-cert-validation.disabled-cert-validation
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,170,"Nguyên nhân: Mã nguồn tắt xác thực chứng chỉ TLS bằng cách thiết lập SSL.VERIFY_NONE, khiến kết nối không kiểm tra tính hợp lệ của chứng chỉ máy chủ.
+Cách khắc phục: Bỏ đối số verify_callback để OpenSSL sử dụng quy trình xác thực tích hợp sẵn, hoặc gọi set_verify với cờ xác thực phù hợp.",python:S4830
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,176,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,182,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,197,"Nguyên nhân: Đã tắt tính năng xác thực chứng chỉ số, khiến kết nối có thể bị tấn công man-in-the-middle và dữ liệu bị đánh cắp.
+Cách khắc phục: Bật lại xác thực chứng chỉ số và sử dụng chứng chỉ hợp lệ từ tổ chức uy tín thay vì bỏ qua kiểm tra bảo mật.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS126186
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,197,"Nguyên nhân: Xác thực chứng chỉ đã bị tắt đi một cách rõ ràng, cho phép kết nối không an toàn tới máy chủ không an toàn.
+Cách khắc phục: Bật lại xác thực chứng chỉ trong file run_report_for_docs.py dòng 72.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):python.requests.security.disabled-cert-validation.disabled-cert-validation
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,197,"Nguyên nhân: Ứng dụng gọi thư viện requests với tham số verify=False, làm tắt kiểm tra chứng chỉ SSL khi kết nối đến máy chủ từ xa, gây nguy cơ tấn công trung gian.
+Cách khắc phục: Đổi thành verify=True hoặc truyền đường dẫn đến tệp chứng chỉ CA đáng tin cậy khi gọi requests, đồng thời kiểm tra lại toàn bộ mã nguồn để loại bỏ các lời gọi tắt xác thực SSL.",external_bandit:B501
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,197,"Nguyên nhân: Mã nguồn tắt xác thực chứng chỉ TLS bằng cách thiết lập SSL.VERIFY_NONE, khiến kết nối không kiểm tra tính hợp lệ của chứng chỉ máy chủ.
+Cách khắc phục: Bỏ đối số verify_callback để OpenSSL sử dụng quy trình xác thực tích hợp sẵn, hoặc gọi set_verify với cờ xác thực phù hợp.",python:S4830
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,ai_ats/api.py,295,"Nguyên nhân: Sử dụng nhiều lời gọi startswith() hoặc endswith() liên tiếp kết hợp bằng toán tử 'or' để kiểm tra một chuỗi với nhiều tiền tố/hậu tố khác nhau, gây ra mã dài dòng và khó bảo trì.
+Cách khắc phục: Gom tất cả các tiền tố hoặc hậu tố cần kiểm tra vào một tuple và truyền nó làm đối số duy nhất cho phương thức startswith() hoặc endswith().",python:S8513
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/public/frontend/assets/index-sKk2YOPC.js,17,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/public/frontend/assets/index-sKk2YOPC.js,18,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,345,"Nguyên nhân: Câu lệnh điều kiện lồng nhau khó đọc và làm phức tạp thứ tự thực hiện.
+Cách khắc phục: Sử dụng dòng khác để diễn đạt phép toán lồng nhau trong một câu lệnh riêng.",javascript:S3358
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,353,"Nguyên nhân: Câu lệnh điều kiện lồng nhau khó đọc và làm phức tạp thứ tự thực hiện.
+Cách khắc phục: Sử dụng dòng khác để diễn đạt phép toán lồng nhau trong một câu lệnh riêng.",javascript:S3358
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,355,"Nguyên nhân: Câu lệnh điều kiện lồng nhau khó đọc và làm phức tạp thứ tự thực hiện.
+Cách khắc phục: Sử dụng dòng khác để diễn đạt phép toán lồng nhau trong một câu lệnh riêng.",javascript:S3358
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,359,"Nguyên nhân: Câu lệnh điều kiện lồng nhau khó đọc và làm phức tạp thứ tự thực hiện.
+Cách khắc phục: Sử dụng dòng khác để diễn đạt phép toán lồng nhau trong một câu lệnh riêng.",javascript:S3358
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,frontend/src/components/CandidateReport.vue,363,"Nguyên nhân: Độ phức tạp nhận thức cao do điều kiện logic kết hợp nhiều toán tử lồng nhau và hàm thực hiện quá nhiều nhiệm vụ.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, phân tách hàm lớn thành nhiều hàm nhỏ có trách nhiệm đơn limited, xử lý trường hợp ngoại lệ trước và trả về sớm.",javascript:S3776
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,378,"Nguyên nhân: Mã JavaScript sử dụng ký tự thoát \ (backslash) để biểu diễn một ký tự thông thường mà không phải là ký tự đặc biệt cần thoát.
+Cách khắc phục: Loại bỏ ký tự thoát thừa (\ ) khỏi chuỗi ký tự, chuỗi template hoặc biểu thức chính quy.",javascript:S6535
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,403,"Nguyên nhân: Mã JavaScript sử dụng ký tự thoát \ (backslash) để biểu diễn một ký tự thông thường mà không phải là ký tự đặc biệt cần thoát.
+Cách khắc phục: Loại bỏ ký tự thoát thừa (\ ) khỏi chuỗi ký tự, chuỗi template hoặc biểu thức chính quy.",javascript:S6535
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,404,"Nguyên nhân: Mã JavaScript sử dụng ký tự thoát \ (backslash) để biểu diễn một ký tự thông thường mà không phải là ký tự đặc biệt cần thoát.
+Cách khắc phục: Loại bỏ ký tự thoát thừa (\ ) khỏi chuỗi ký tự, chuỗi template hoặc biểu thức chính quy.",javascript:S6535
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,485,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,486,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,487,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,532,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,533,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,534,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,550,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,551,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,552,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,695,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,726,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,727,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,976,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,875,"Nguyên nhân: Chuỗi ký tự lặp lại làm phức tạp quá trình tái cấu trúc mã.
+Cách khắc phục: Sử dụng hằng số để thay thế các chuỗi ký tự lặp lại.",python:S1192
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,1349,"Nguyên nhân: Chuỗi ký tự lặp lại làm phức tạp quá trình tái cấu trúc mã.
+Cách khắc phục: Sử dụng hằng số để thay thế các chuỗi ký tự lặp lại.",python:S1192
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,test_score_api.py,16,"Nguyên nhân: Phát hiện thông tin bí mật (API key) trong file mã nguồn, gây nguy cơ bị truy cập trái phép.
+Cách khắc phục: Loại bỏ key khỏi file, lưu trữ an toàn bằng biến môi trường và thu hồi key cũ.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):generic-api-key
+Mã nguồn & Cấu hình,,SECURITY,BLOCKER,OPEN,test_score_api.py,17,"Nguyên nhân: Phát hiện thông tin bí mật (API key) trong file mã nguồn, gây nguy cơ bị truy cập trái phép.
+Cách khắc phục: Loại bỏ key khỏi file, lưu trữ an toàn bằng biến môi trường và thu hồi key cũ.",external_betterleaks (MegaLinter REPOSITORY_BETTERLEAKS):generic-api-key
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,test_score_api.py,19,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,1282,"Nguyên nhân: Sử dụng hàm băm MD5 yếu cho bảo mật.
+Cách khắc phục: Xem xét sử dụng usedforsecurity=False.",external_bandit:B324
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,1282,"Nguyên nhân: Thuật toán băm yếu hoặc bị lỗi được sử dụng.
+Cách khắc phục: Thay thế bằng thuật toán băm mạnh hơn như SHA-256.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS126858
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,1282,"Nguyên nhân: Phát hiện thuật toán băm MD5 không an toàn.
+Cách khắc phục: Thay thế MD5 bằng SHA256 hoặc SHA3.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):python.lang.security.insecure-hash-algorithms-md5.insecure-hash-algorithm-md5
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,618,"Nguyên nhân: Chuỗi ký tự lặp lại làm phức tạp quá trình tái cấu trúc mã.
+Cách khắc phục: Sử dụng hằng số để thay thế các chuỗi ký tự lặp lại.",python:S1192
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,1037,"Nguyên nhân: Phát hiện thuật toán băm MD5 không an toàn.
+Cách khắc phục: Thay thế MD5 bằng SHA256 hoặc SHA3.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):python.lang.security.insecure-hash-algorithms-md5.insecure-hash-algorithm-md5
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,1037,"Nguyên nhân: Thuật toán băm yếu hoặc bị lỗi được sử dụng.
+Cách khắc phục: Thay thế bằng thuật toán băm mạnh hơn như SHA-256.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS126858
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,1037,"Nguyên nhân: Sử dụng hàm băm MD5 yếu cho bảo mật.
+Cách khắc phục: Xem xét sử dụng usedforsecurity=False.",external_bandit:B324
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,1070,"Nguyên nhân: Chuỗi ký tự lặp lại làm phức tạp quá trình tái cấu trúc mã.
+Cách khắc phục: Sử dụng hằng số để thay thế các chuỗi ký tự lặp lại.",python:S1192
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,1072,"Nguyên nhân: Chuỗi ký tự lặp lại làm phức tạp quá trình tái cấu trúc mã.
+Cách khắc phục: Sử dụng hằng số để thay thế các chuỗi ký tự lặp lại.",python:S1192
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,843,"Nguyên nhân: Phát hiện thuật toán băm MD5 không an toàn.
+Cách khắc phục: Thay thế MD5 bằng SHA256 hoặc SHA3.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):python.lang.security.insecure-hash-algorithms-md5.insecure-hash-algorithm-md5
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,843,"Nguyên nhân: Thuật toán băm yếu hoặc bị lỗi được sử dụng.
+Cách khắc phục: Thay thế bằng thuật toán băm mạnh hơn như SHA-256.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS126858
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,843,"Nguyên nhân: Sử dụng hàm băm MD5 yếu cho bảo mật.
+Cách khắc phục: Xem xét sử dụng usedforsecurity=False.",external_bandit:B324
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,964,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,964,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,42,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,51,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,439,"Nguyên nhân: Việc thực hiện phép gán giá trị bên trong một biểu thức phụ làm giảm độ rõ ràng và dễ gây hiểu lầm.
+Cách khắc phục: Tách các phép gán ra thành câu lệnh riêng biệt để làm rõ hành động và tránh tạo hiệu ứng phụ không mong muốn.",javascript:S1121
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,440,"Nguyên nhân: Việc thực hiện phép gán giá trị bên trong một biểu thức phụ làm giảm độ rõ ràng và dễ gây hiểu lầm.
+Cách khắc phục: Tách các phép gán ra thành câu lệnh riêng biệt để làm rõ hành động và tránh tạo hiệu ứng phụ không mong muốn.",javascript:S1121
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/api.py,722,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,722,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/job_matcher.py,7,"Nguyên nhân: Hàm có độ phức tạp nhận thức vượt ngưỡng quy định do chứa quá nhiều điều kiện phức tạp và lồng nhau sâu.
+Cách khắc phục: Tách các điều kiện phức tạp thành hàm riêng, chia nhỏ hàm lớn thành các hàm đơn giản hơn, và xử lý các trường hợp ngoại lệ trước để trả về sớm nhằm giảm độ phức tạp.",python:S3776
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/job_matcher.py,144,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/job_matcher.py,144,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,49,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,48,"Nguyên nhân: : Mã bị chú thích làm phân tán sự tập trung và tăng độ phức tạp khi bảo trì.
+Cách khắc phục: : Xóa mã bị chú thích và sử dụng lịch sử kiểm soát phiên bản để khôi phục khi cần.",python:S125
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,77,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,77,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,79,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,79,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,88,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,98,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,141,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,141,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,143,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,143,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,173,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,173,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,175,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,175,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,201,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,201,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,203,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,203,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,248,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,248,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/utils/activity_logger.py,250,"Nguyên nhân: Phát hiện Try, Except, Pass trong mã nguồn.
+Cách khắc phục: Thay thế Pass bằng xử lý lỗi cụ thể.",external_bandit:B110
+Mã nguồn & Cấu hình,,MAINTAINABILITY,HIGH,OPEN,ai_ats/utils/activity_logger.py,250,"Nguyên nhân: Không tái phát sinh ngoại lệ SystemExit có thể dẫn đến hành vi không mong muốn.
+Cách khắc phục: Tái phát sinh ngoại lệ SystemExit và BaseException trong khối except.",python:S5754
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,frontend/src/utils/session.js,108,"Nguyên nhân: Username được ghi trực tiếp trong mã nguồn gây lộ thông tin nhạy cảm.
+Cách khắc phục: Di chuyển username vào biến môi trường và đọc giá trị từ đó khi sử dụng.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):ajinabraham.njsscan.generic.hardcoded_secrets.node_username
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,ai_ats/ai_ats/doctype/ai_job_match_result/ai_job_match_result.py,4,"Nguyên nhân: : Mã bị chú thích làm phân tán sự tập trung và tăng độ phức tạp khi bảo trì.
+Cách khắc phục: : Xóa mã bị chú thích và sử dụng lịch sử kiểm soát phiên bản để khôi phục khi cần.",python:S125
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,586,"Nguyên nhân: Sử dụng hàm băm MD5 yếu cho bảo mật.
+Cách khắc phục: Xem xét sử dụng usedforsecurity=False.",external_bandit:B324
+Mã nguồn & Cấu hình,,SECURITY,HIGH,OPEN,ai_ats/api.py,586,"Nguyên nhân: Thuật toán băm yếu hoặc bị lỗi được sử dụng.
+Cách khắc phục: Thay thế bằng thuật toán băm mạnh hơn như SHA-256.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS126858
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,ai_ats/api.py,586,"Nguyên nhân: Phát hiện thuật toán băm MD5 không an toàn.
+Cách khắc phục: Thay thế MD5 bằng SHA256 hoặc SHA3.",external_Semgrep OSS (MegaLinter REPOSITORY_SEMGREP):python.lang.security.insecure-hash-algorithms-md5.insecure-hash-algorithm-md5
+Lỗ hổng Thư viện (SCA),nanoid,SECURITY,HIGH,OPEN,frontend/package-lock.json,1019,"Nguyên nhân: Thư viện nanoid phiên bản 3.3.12 đang sử dụng có lỗ hổng vòng lặp vô hạn khi hàm customAlphabet hoặc customRandom được gọi với tham số kích thước bằng 0, khiến ứng dụng bị treo hoàn toàn.
+Cách khắc phục: Nâng cấp nanoid lên phiên bản 3.3.17 hoặc mới hơn trong file frontend/package-lock.json bằng lệnh npm update nanoid hoặc sửa đổi trực tiếp phiên bản trong package.json rồi chạy npm install.",external_Trivy (MegaLinter REPOSITORY_TRIVY):CVE-2026-67213
+Lỗ hổng Thư viện (SCA),nanoid,SECURITY,HIGH,OPEN,frontend/package-lock.json,1019,"Nguyên nhân: Thư viện nanoid phiên bản 3.3.12 tồn tại lỗ hổng vòng lặp vô hạn khi truyền kích thước âm vào hàm customAlphabet và nanoid trong module non-secure.
+Cách khắc phục: Nâng cấp nanoid lên phiên bản 3.3.16 trở lên trong file frontend/package-lock.json và chạy npm install để áp dụng thay đổi.",external_Trivy (MegaLinter REPOSITORY_TRIVY):CVE-2026-67214
+Lỗ hổng Thư viện (SCA),postcss,SECURITY,HIGH,OPEN,frontend/package-lock.json,1043,"Nguyên nhân: Mã nguồn hoặc cấu hình chưa đáp ứng yêu cầu an toàn của rule được phát hiện.
+Cách khắc phục: Kiểm tra file/dòng được báo cáo và cập nhật cấu hình hoặc phiên bản thư viện an toàn trở lên.",external_Trivy (MegaLinter REPOSITORY_TRIVY):GHSA-r28c-9q8g-f849
+Lỗ hổng Thư viện (SCA),postcss,SECURITY,MEDIUM,OPEN,frontend/package-lock.json,1043,"Nguyên nhân: Gói postcss phiên bản 8.5.14 chứa lỗi bảo mật CVE-2026-69153 do vá không triệt để lỗi CVE-2026-45623, cho phép kẻ tấn công đọc tệp .map bất kỳ thông qua sourceMappingURL khi tham số from chưa được thiết lập.
+Cách khắc phục: Nâng cấp gói postcss lên phiên bản 8.5.23 hoặc mới hơn trong frontend/package-lock.json bằng lệnh npm update postcss hoặc sửa trực tiếp phiên bản trong package.json rồi chạy npm install.",external_Trivy (MegaLinter REPOSITORY_TRIVY):CVE-2026-69153
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/App.vue,94,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/App.vue,99,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,17,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,34,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,43,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,47,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/CandidateReport.vue,689,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/JobMatcher.vue,35,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,RELIABILITY,MEDIUM,OPEN,frontend/src/components/JobMatcher.vue,39,"Nguyên nhân: Phần tử nhãn <label> thiếu nội dung văn bản hoặc không được liên kết với phần tử điều khiển nào.
+Cách khắc phục: Đảm bảo nhãn <label> bao bọc phần tử điều khiển hoặc có thuộc tính `for` (hoặc `htmlFor` trong JSX) trỏ tới `id` của phần tử điều khiển đó.",Web:S6853
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/JobMatcher.vue,115,"Nguyên nhân: Việc thực hiện phép gán giá trị bên trong một biểu thức phụ làm giảm độ rõ ràng và dễ gây hiểu lầm.
+Cách khắc phục: Tách các phép gán ra thành câu lệnh riêng biệt để làm rõ hành động và tránh tạo hiệu ứng phụ không mong muốn.",javascript:S1121
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/JobMatcher.vue,116,"Nguyên nhân: Việc thực hiện phép gán giá trị bên trong một biểu thức phụ làm giảm độ rõ ràng và dễ gây hiểu lầm.
+Cách khắc phục: Tách các phép gán ra thành câu lệnh riêng biệt để làm rõ hành động và tránh tạo hiệu ứng phụ không mong muốn.",javascript:S1121
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/JobMatcher.vue,178,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/JobMatcher.vue,212,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,MAINTAINABILITY,MEDIUM,OPEN,frontend/src/components/JobMatcher.vue,213,"Nguyên nhân: Văn bản trên trang web không đạt tỷ lệ tương phản màu tối thiểu theo WCAG AA (4.5:1 cho chữ thường, 3:1 cho chữ lớn), khiến nội dung khó đọc đối với người dùng có thị lực kém hoặc trong điều kiện ánh sáng không lý tưởng.
+Cách khắc phục: Sử dụng công cụ kiểm tra độ tương phản để đo lường và điều chỉnh cặp màu nền/chữ, đảm bảo đạt tỷ lệ tối thiểu 4.5:1 (hoặc 3:1 cho chữ lớn) theo tiêu chuẩn WCAG AA.",css:S7924
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,test_api.py,6,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,test_api.py,7,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,test_api.py,9,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,test_api2.py,6,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,test_api2.py,7,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY,MEDIUM,OPEN,test_api2.py,9,"Nguyên nhân: URL không an toàn được sử dụng trong mã nguồn.
+Cách khắc phục: Thay thế URL không an toàn bằng URL an toàn.",external_devskim (MegaLinter REPOSITORY_DEVSKIM):DS137138
+Mã nguồn & Cấu hình,,SECURITY_HOTSPOT,MEDIUM,TO_REVIEW,frontend/src/components/CandidateReport.vue,379,"Nguyên nhân: Regex chứa các lặp không giới hạn (r*) hoặc lặp không chắc chắn (r*?) làm cho khả năng khớp nhiều cách và gây thời gian khớp tăng trưởng
+Cách khắc phục: Áp dụng các thực hành mã an toàn, tránh các mẫu regex gây backtracking và thiết kế regex tối ưu, giới hạn lặp, kiểm tra tính nhất quán",javascript:S5852
+Mã nguồn & Cấu hình,,SECURITY_HOTSPOT,MEDIUM,TO_REVIEW,ai_ats/api.py,282,"Nguyên nhân: Biểu thức chính quy chứa lượng tử không chiếm hữu (như r* hoặc r*?) kết hợp với phần tùy chọn hoặc luân phiên có thể gây ra quá trình quay lui thảm khốc (catastrophic backtracking), dẫn đến nguy cơ từ chối dịch vụ (ReDoS).
+Cách khắc phục: Viết lại biểu thức chính quy để khử sự mơ hồ, sử dụng lượng tử chiếm hữu (possessive quantifier) hoặc nhóm nguyên tử (atomic group) trong ngôn ngữ hỗ trợ, hoặc giới hạn độ dài chuỗi đầu vào và đặt thời gian chờ cho thao tác so khớp.",python:S5852
