@@ -1294,7 +1294,7 @@ def score_single(url: str = "", type: str = "ai", api_use_cache=1):
         else:
             ai_guide = _read_cached(_AI_SCORING_PDF, True)
         system   = _SYSTEM_AI
-        max_tok  = 2500
+        max_tok  = 16384
         user_msg = (
             f"### RUBRIC CHẤM ĐIỂM AI TEST (thang 4 mức, 10 câu x 10đ):\n{ai_guide}\n\n"
             f"### BÀI LÀM ỨNG VIÊN:\n{content[:18000]}\n\n"
