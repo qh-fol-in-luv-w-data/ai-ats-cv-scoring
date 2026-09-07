@@ -1,89 +1,153 @@
-# AI ATS - Hệ thống Chấm điểm & Sàng lọc CV AI (Frappe App)
+# AI ATS - Chấm điểm & Sàng lọc CV bằng AI (Frappe App)
 
-AI ATS là một ứng dụng mở rộng trên nền tảng Frappe, giúp tự động hóa quá trình đánh giá ứng viên, chấm điểm bài test Odoo/Jobtest.vn và sàng lọc CV dựa trên N Job Descriptions thông qua sức mạnh của OpenAI GPT-4o.
+AI ATS là một Frappe App tự động hoá quá trình đánh giá ứng viên: chấm điểm bài test (Odoo Survey / Jobtest.vn / 5G / AI Test / EQ), sàng lọc CV theo Job Description và ghép 1 CV với nhiều JD — sử dụng OpenAI GPT-4o.
 
-## 🚀 Tính năng nổi bật
-- **Đánh Giá (1 CV - 1 Bài Test):** Đánh giá bài test EQ/IQ, SWAT Elite, AI Readiness và phân tích điểm mạnh, điểm yếu của ứng viên.
-- **Gợi ý công việc (1 CV - N Jobs):** Upload 1 CV duy nhất và quét hàng loạt JD (Job Descriptions) để tìm ra vị trí phù hợp nhất, kèm điểm phần trăm (%) và phân tích cặn kẽ.
-- **Tự động trích xuất:** Hỗ trợ đọc file DOCX, PDF hoặc cào dữ liệu trực tiếp từ Public Links (Odoo Survey, Jobtest.vn).
-- **Lưu trữ chuẩn Frappe:** Tự động lưu báo cáo vào DocType `AI Candidate Report` và `AI Job Match Result`.
+- Repo: [qh-fol-in-luv-w-data/ai-ats-cv-scoring](https://github.com/qh-fol-in-luv-w-data/ai-ats-cv-scoring)
+- Frappe app name: `ai_ats`
 
----
+## Tính năng nổi bật
 
-## 🛠 Hướng dẫn Cài đặt & Triển khai
+- **1 CV → 1 báo cáo Persona**: chấm điểm bài AI Test / 5G / EQ, tổng hợp SWAT, phân tích điểm mạnh/yếu.
+- **1 CV → N Jobs (Job Matcher)**: quét hàng loạt JD, cho điểm % phù hợp và giải thích.
+- **Trích xuất tự động**: hỗ trợ file DOCX, PDF hoặc scrape trực tiếp từ Public Link (Odoo Survey, Jobtest.vn) qua Playwright.
+- **Lưu chuẩn Frappe**: kết quả ghi vào DocType `AI Candidate Report` và `AI Job Match Result`, có audit qua `ATS Session` / `ATS Action Log` / `ATS AI Call Log`.
 
-### 1. Cài đặt App vào Frappe Bench
-Trên máy chủ đã cài sẵn Frappe Bench, hãy chạy lệnh sau để kéo source code về:
+## Cấu trúc thư mục
+
+```
+.
+├── ai_ats/                         # Frappe app
+│   ├── api.py                      # Endpoint chính: generate_candidate_report,
+│   │                               # generate_candidate_only_report, score_tests, score_single, get_context
+│   ├── job_matcher.py              # Endpoint match_candidate_jobs (1 CV vs N JD)
+│   ├── generate_token.py           # Sinh Frappe API token
+│   ├── test_score.py               # Logic chấm điểm bài test
+│   ├── create_doctype.py           # Bootstrap DocType
+│   ├── hooks.py                    # SPA route /aicenter/2as-ats
+│   ├── ai_ats/doctype/             # DocType: ai_candidate_report, ai_job_match_result,
+│   │                               # ats_session, ats_action_log, ats_ai_call_log
+│   ├── utils/activity_logger.py    # Ghi log activity/AI call
+│   ├── www/                        # Web template gắn SPA
+│   └── public/frontend/            # Vite build output
+├── frontend/                       # Vue 3 SPA (Vite)
+├── docs/security/                  # Báo cáo bảo mật
+├── docx_images/                    # Ảnh dùng cho file DOCX xuất báo cáo
+├── pyproject.toml                  # setuptools; dep: openai, requests, pypdf, python-docx, bs4, lxml
+├── requirements.txt
+└── README.md
+```
+
+## Cài đặt
+
+### 1. Cài app vào Frappe Bench
+
 ```bash
 cd frappe-bench
-bench get-app ai_ats https://github.com/ctg-ai-data/2as-ats
+bench get-app ai_ats https://github.com/qh-fol-in-luv-w-data/ai-ats-cv-scoring
+bench --site <site> install-app ai_ats
 ```
 
-Tiếp theo, cài đặt App vào Site của bạn (ví dụ site của bạn là `ct-datalake.localhost`):
-```bash
-bench --site ct-datalake.localhost install-app ai_ats
-```
+### 2. Python dependencies
 
-### 2. Cài đặt Python Dependencies
-Ứng dụng yêu cầu một số thư viện Python để xử lý file và kết nối API.
-Cài đặt trực tiếp vào môi trường ảo (virtual environment) của Frappe:
 ```bash
 cd frappe-bench
 ./env/bin/pip install -r apps/ai_ats/requirements.txt
+
+# Playwright dùng để scrape Odoo/Jobtest.vn
+./env/bin/pip install playwright
+./env/bin/playwright install chromium
 ```
 
-### 3. Cấu hình Environment Variables (.env)
-Bên trong thư mục ứng dụng `apps/ai_ats/ai_ats`, tạo file `.env` (hoặc copy từ `.env.example` nếu có) để khai báo API Key:
+### 3. Environment / API keys
+
+Tạo `.env` tại `apps/ai_ats/ai_ats/.env`:
+
 ```env
-OPENAI_API_KEY=sk-xxxx...
+OPENAI_API_KEY=sk-...
 ```
 
-### 4. Build Frontend (Vue.js)
-Giao diện người dùng được xây dựng bằng Vue.js + Vite, đặt trong thư mục `frontend`.
-Để ứng dụng có thể chạy mượt mà trên Frappe, bạn cần cài thư viện Node và Build:
+hoặc set qua bench config:
+
+```bash
+bench --site <site> set-config openai_api_key "sk-..."
+```
+
+### 4. Build Frontend
+
 ```bash
 cd apps/ai_ats/frontend
 npm install
-npm run build
+npm run build   # output → ../ai_ats/public/frontend/
 ```
 
-*(Trong môi trường dev, bạn có thể chạy `npm run dev` để khởi chạy server Frontend ở port `5174/5175`).*
+Dev server: `npm run dev` (port 5174/5175, có Vite proxy → `localhost:8000`).
 
-### 5. Cấp quyền API Token (Dành cho Postman / Frontend)
-Hệ thống sử dụng xác thực Token của Frappe. Để tạo Token:
-1. Vào hệ thống Frappe UI -> Tên user của bạn (góc phải trên) -> My Settings.
-2. Tìm phần **API Access**, tạo **API Secret** (Nhớ lưu lại vì nó chỉ hiện 1 lần).
-3. API Token sẽ có dạng: `token <api_key>:<api_secret>`.
+### 5. Chạy
 
-Ví dụ Header gọi API:
-`Authorization: token aae39b3ed483be2:78623a82878aba3`
+```bash
+cd frappe-bench
+bench start
+```
 
----
+Truy cập SPA tại `http://localhost:8000/aicenter/2as-ats`.
 
-## 📚 API Endpoints
+## Xác thực API (Frappe token)
 
-### 1. API Tạo báo cáo đánh giá Ứng viên (Candidate Report)
-- **Endpoint:** `POST /api/method/ai_ats.api.generate_candidate_report`
-- **Mô tả:** Chấm điểm dựa trên file bài test và JD.
-- **Payload (FormData):**
-  - `ai_test_url` (Text): Link Odoo bài test AI (Hoặc dùng `ai_test_file`).
-  - `g5_test_url` (Text): Link Odoo bài test 5G (Hoặc dùng `g5_test_file`).
-  - `eq_test_url` (Text): Link Jobtest.vn.
-  - `cv_file` (File): File CV PDF/DOCX (bắt buộc).
-  - `jd_text` (Text): Nội dung Job Description.
-  - `api_use_cache` (Text): Set = `0` để bắt AI chấm lại từ đầu, bỏ qua cache.
+Tạo API key + secret trong `/desk#user` → **API Access**, dùng header:
 
-### 2. API Gợi ý công việc (Job Matcher)
-- **Endpoint:** `POST /api/method/ai_ats.job_matcher.match_candidate_jobs`
-- **Mô tả:** Match 1 CV với nhiều JD.
-- **Payload (FormData):**
-  - `cv_file` (File): File CV của ứng viên (PDF/DOCX).
-  - `jobs_json` (JSON String): Danh sách các Jobs cần match. VD:
-    `[{"id": 1, "title": "Dev", "jd_text": "Cần tuyển..."}]`
+```
+Authorization: token <api_key>:<api_secret>
+```
 
----
+## Whitelisted API
 
-## 🖥 Công nghệ sử dụng
-- Backend: Python, Frappe Framework, OpenAI API.
-- Cấu trúc Data: MariaDB / Frappe DocType.
-- Frontend: Vue 3, Vite, Vanilla CSS.
+Tất cả prefix `/api/method/`:
+
+| Endpoint | Mô tả |
+|---|---|
+| `ai_ats.api.generate_candidate_report` | Chấm CV + N bài test → báo cáo Persona đầy đủ |
+| `ai_ats.api.generate_candidate_only_report` | Chỉ phân tích CV, không có bài test |
+| `ai_ats.api.score_tests` | Chấm loạt bài test (Odoo AI / 5G / EQ) |
+| `ai_ats.api.score_single` | Chấm 1 bài test (url + type) |
+| `ai_ats.api.get_context` | Context SPA (session, user, config) |
+| `ai_ats.job_matcher.match_candidate_jobs` | Ghép 1 CV với danh sách nhiều JD |
+
+### Ví dụ: generate_candidate_report
+
+```
+POST /api/method/ai_ats.api.generate_candidate_report
+Authorization: token <key>:<secret>
+Content-Type: multipart/form-data
+```
+
+Fields:
+
+- `ai_test_url` hoặc `ai_test_file` – bài AI Test (Odoo)
+- `g5_test_url` hoặc `g5_test_file` – bài 5G
+- `eq_test_url` – link Jobtest.vn
+- `cv_file` (**bắt buộc**) – CV PDF/DOCX
+- `jd_text` – nội dung JD
+- `api_use_cache=0` để bỏ qua cache và bắt chấm lại
+
+### Ví dụ: match_candidate_jobs
+
+```
+POST /api/method/ai_ats.job_matcher.match_candidate_jobs
+```
+
+- `cv_file` – CV PDF/DOCX
+- `jobs_json` – JSON list, ví dụ:
+
+```json
+[{"id": 1, "title": "Dev", "jd_text": "Cần tuyển..."}]
+```
+
+## Công nghệ
+
+- Backend: Python 3.10+, Frappe v15, OpenAI GPT-4o, Playwright (scrape).
+- Data: MariaDB / Frappe DocType.
+- Frontend: Vue 3.4, Vite 5, vanilla CSS.
+
+## License
+
+MIT © CT Group
